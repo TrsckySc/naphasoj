@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>mock</title>
+    <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./index.css">
+</head>
+
+<body>
+    <div class="p-3">
+        <!-- 筛选 -->
+        <div>
+            <form>
+                <div class="form-row align-items-center">
+                    <div class="col-auto">
+                        <label class="sr-only" for="inlineFormInput">接口地址</label>
+                        <input type="text" class="form-control mb-2" id="inlineFormInput"
+                            placeholder="please input url..">
+                    </div>
+
+                    <div class="col-auto">
+                        <button type="button" class="btn btn-primary mb-2" onclick="searchlist()">查询</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- add -->
+        <div class="pt-3 pb-3">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">新增接口</button>
+        </div>
+        <!-- table -->
+        <div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">序号</th>
+                        <th scope="col">接口名称</th>
+                        <th scope="col">接口地址</th>
+                        <th scope="col">是否开启Mock数据</th>
+                        <th scope="col" class="text-center">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="table-tbody"></tbody>
+            </table>
+        </div>
+    </div>
+    <script id="list-template" type="text/x-handlebars-template">
+        {{#each this}}
+        <tr>
+            <th scope="row">{{@index}}</th>
+            <td>{{name}}</td>
+            <td>{{url}}</td>
+            <td>
+                <input type="checkbox" id="toggle-button-{{_id}}" name="switch" class="switch">
+                <label for="toggle-button-{{_id}}" class="button-label">
+                    <span class="circle"></span>
+                    <span class="text on">ON</span>
+                    <span class="text off">OFF</span>
+                </label>
+            </td>
+            <td class="text-center">
+                <button type="button" class="btn btn-primary btn-sm">查看</button>
+                <button type="button" class="btn btn-info btn-sm">编辑</button>
+                <button type="button" class="btn btn-warning btn-sm" onclick="deleteInterface('{{_id}}')">删除</button>
+            </td>
+        </tr>
+        {{/each}}
+    </script>
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">新增接口</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="interface-name">接口名称</label>
+                            <input type="email" class="form-control" id="interface-name" placeholder="name">
+                        </div>
+                        <div class="form-group">
+                            <label for="interface-url">接口地址</label>
+                            <input type="email" class="form-control" id="interface-url" placeholder="/api/xxx/xxx">
+                        </div>
+                        <div class="form-group">
+                            <label for="interface-data">模拟数据</label>
+                            <textarea class="form-control" id="interface-data" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" onclick="saveInterface()">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.bootcss.com/jquery/3.4.0/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/handlebars.js/4.1.2/handlebars.min.js"></script>
+    <script src="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script>
+
+        // 查询列表数据
+        function searchlist() {
+            var param = {};
+            if ($('#inlineFormInput').val()) {
+                param.url = $('#inlineFormInput').val();
+            }
+            $.get('/api/get-interface-list', param, function (data) {
+                console.log(data);
+                var html = Handlebars.compile($('#list-template').html());
+                $("#table-tbody").html(html(data.data));
+            })
+        }
+        searchlist();
+
+        // 保存接口
+        function saveInterface() {
+            var param = {
+                name: $('#interface-name').val(),
+                url: $('#interface-url').val(),
+                data: JSON.parse($('#interface-data').val()),
+            }
+            $.post('/api/add-interface', param, function (data) {
+                if (data.success) {
+                    alert('保存成功');
+                    $('#exampleModal').modal('hide');
+                    $('#interface-name').val('');
+                    $('#interface-url').val('');
+                    $('#interface-data').val('');
+                } else {
+                    alert(data.errorMsg);
+                }
+            })
+        }
+
+        // 查看接口
+        function getInterface(id) {
+
+        }
+
+        // 编辑接口
+        function editInterface(id) {
+
+        }
+
+        // 删除接口
+        function deleteInterface(id) {
+            var emp = confirm('是否删除该接口？');
+            if (emp != 0) {
+                // 调删除接口
+                console.log(id)
+            }
+        }
+    </script>
+</body>
+
+</html>
