@@ -121,6 +121,7 @@ router.post('/api/update-interface', (req, res) => {
         item.name = req.body.name;
         item.url = req.body.url;
         item.data = req.body.data;
+        item.sourceData =req.body.sourceData;
         item.save((err) => {
             if (err) throw err;
             res.send({

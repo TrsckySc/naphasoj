@@ -114,6 +114,7 @@
     <script src="https://cdn.bootcss.com/jquery/3.4.0/jquery.min.js"></script>
     <script src="https://cdn.bootcss.com/handlebars.js/4.1.2/handlebars.min.js"></script>
     <script src="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://unpkg.com/json5@^2.0.0/dist/index.min.js"></script>
     <script>
 
         // 查询列表数据
@@ -149,10 +150,13 @@
 
         // 新增保存接口
         function saveInterface() {
+            var data = $('#interface-data').val();
+
             var param = {
                 name: $('#interface-name').val(),
                 url: $('#interface-url').val(),
-                data: JSON.parse($('#interface-data').val()),
+                data: JSON5.parse(data),
+                sourceData:JSON5.stringify(data)
             }
 
             $.ajax({
@@ -195,7 +199,7 @@
                     if (data.success) {
                         $('#interface-name').val(data.data.name);
                         $('#interface-url').val(data.data.url);
-                        $('#interface-data').val(JSON.stringify(data.data.data));
+                        $('#interface-data').val(JSON5.parse(data.data.sourceData));
 
                         $('#interface-name').prop('disabled', true);
                         $('#interface-url').prop('disabled', true);
@@ -228,7 +232,7 @@
                     if (data.success) {
                         $('#interface-name').val(data.data.name);
                         $('#interface-url').val(data.data.url);
-                        $('#interface-data').val(JSON.stringify(data.data.data));
+                        $('#interface-data').val(JSON5.parse(data.data.sourceData));
                     } else {
                         alert(data.errorMsg);
                     }
@@ -264,11 +268,13 @@
 
         // 更新接口
         function updateInterface() {
+            var data = $('#interface-data').val();
             var param = {
                 id: $('#update-btn').prop("data-id"),
                 name: $('#interface-name').val(),
                 url: $('#interface-url').val(),
-                data: JSON.parse($('#interface-data').val()),
+                data: JSON5.parse(data),
+                sourceData:JSON5.stringify(data)
             }
             $.ajax({
                 url: '/api/update-interface',
