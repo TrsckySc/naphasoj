@@ -9,7 +9,7 @@
   <link href="./lib/bootstrap.min.css" rel="stylesheet">
   <style>
     #interface-data {
-      /* position: absolute; */
+      position: relative;
       width: 100%;
       height: 300px;
     }
@@ -17,12 +17,6 @@
 </head>
 
 <body>
-  <div class="alert alert-dismissible fade show" role="alert" id="alert">
-    <strong id="alert-title">更改成功</strong> <span id="alert-content">你已经成功把状态改为启用中了</span>.
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
   <div class="p-3">
     <!-- 筛选 -->
     <div>
@@ -140,28 +134,95 @@
   <script src="./lib/ace-1.4.4/src/theme-chrome.js"></script>
   <script src="./lib/ace-1.4.4/src/mode-json.js"></script>
   <script src="./lib/ace-1.4.4/src/snippets/json.js"></script>
+  <script src="./lib/ace-1.4.4/src/ext-language_tools.js"></script>
   <script>
 
     var editor = ace.edit("interface-data");
     editor.setTheme("ace/theme/chrome");//设置主题
     var JavaScriptMode = ace.require("ace/mode/json").Mode;
     editor.session.setMode(new JavaScriptMode());//设置程序语言模式
+    // 自定义补全列表
+    var autoCompleteData = [
+      {
+        name: "mock string",// 没啥用
+        value: "@string",// 实际的值
+        caption: "@string",// 显示在补全列表中的值
+        meta: "Mock-String",// 显示在补全列表中的说明
+        type: "local",//好像也没啥用
+        score: 1000//评分越高越靠前
+      },
+      {
+        name: "mock number",// 没啥用
+        value: "@number",// 实际的值
+        caption: "@number",// 显示在补全列表中的值
+        meta: "Mock-Number",// 显示在补全列表中的说明
+        score: 1000//评分越高越靠前
+      },
+      {
+        name: "mock integer",// 没啥用
+        value: "@integer",// 实际的值
+        caption: "@integer",// 显示在补全列表中的值
+        meta: "Mock-Integer",// 显示在补全列表中的说明
+        score: 1000//评分越高越靠前
+      },
+      {
+        name: "mock image",// 没啥用
+        value: "@image",// 实际的值
+        caption: "@image",// 显示在补全列表中的值
+        meta: "Mock-Image",// 显示在补全列表中的说明
+        score: 1000//评分越高越靠前
+      },
+    ]
+    // 设置自动补全
+    var tangideCompleter = {
+      identifierRegexps:[/[a-zA-Z_0-9\@\-\u00A2-\uFFFF]/],
+      getCompletions: function (editor, session, pos, prefix, callback) {
+        if (prefix.length === 0) {
+          return callback(null, []);
+        } else {
+          console.log(session,pos,prefix);
+          return callback(null, autoCompleteData);
+        }
+      }
+    };
+    editor.setOptions({
+      enableBasicAutocompletion: true,
+      enableSnippets: true,
+      enableLiveAutocompletion: true
+    });
+    var langTools = ace.require("ace/ext/language_tools");
+    langTools.addCompleter(tangideCompleter);
 
-    // editor.commands.addCommand({
-    //   name: 'myCommand',
-    //   bindKey: 'F9',//{ win: 'Ctrl-M', mac: 'Command-M' }
-    //   exec: function (editor) {
-    //     //...
-    //     console.log('生效了');
-    //   },
-    //   readOnly: false // 如果不需要使用只读模式，这里设置false
-    // });
-
-    // editor.setOptions({
-    //   enableBasicAutocompletion: true,
-    //   enableSnippets: true,
-    //   enableLiveAutocompletion: true
-    // });
+    // 设置全屏
+    editor.commands.addCommand({
+      name: "fullscreen",
+      bindKey: { win: "Ctrl-Enter", mac: "Command-Enter" },
+      exec: function (editor) {
+        if (editor.isFullScreen) {
+          $('#interface-data').css({
+            position: 'relative',
+            left: 0,
+            top: 0,
+            width: '100%',
+            height: '300px'
+          })
+          editor.resize();
+          editor.isFullScreen = false;
+          document.body.style.overflow = "auto";
+        } else {
+          $('#interface-data').css({
+            position: 'fixed',
+            left: 0,
+            top: 0,
+            width: $(window).width(),
+            height: $(window).height()
+          })
+          editor.resize();
+          editor.isFullScreen = true;
+          document.body.style.overflow = "hidden";
+        }
+      }
+    });
 
     // editor.getSession().setUseWrapMode(true);//设置折叠 默认折叠的
     editor.getSession().setTabSize(2);// 设置制表符大小
