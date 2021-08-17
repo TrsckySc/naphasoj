@@ -175,12 +175,11 @@
     ]
     // 设置自动补全
     var tangideCompleter = {
-      identifierRegexps:[/[a-zA-Z_0-9\@\-\u00A2-\uFFFF]/],
+      identifierRegexps: [/[a-zA-Z_0-9\@\-\u00A2-\uFFFF]/],
       getCompletions: function (editor, session, pos, prefix, callback) {
         if (prefix.length === 0) {
           return callback(null, []);
         } else {
-          console.log(session,pos,prefix);
           return callback(null, autoCompleteData);
         }
       }
@@ -198,6 +197,7 @@
       name: "fullscreen",
       bindKey: { win: "Ctrl-Enter", mac: "Command-Enter" },
       exec: function (editor) {
+        // 通过css来控制全屏
         if (editor.isFullScreen) {
           $('#interface-data').css({
             position: 'relative',
@@ -221,7 +221,8 @@
           editor.isFullScreen = true;
           document.body.style.overflow = "hidden";
         }
-      }
+      },
+      readOnly: true // 只读下设置可以全屏展示
     });
 
     // editor.getSession().setUseWrapMode(true);//设置折叠 默认折叠的
