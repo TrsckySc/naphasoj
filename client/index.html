@@ -13,10 +13,34 @@
       width: 100%;
       height: 300px;
     }
+
+    #preview {
+      height: 300px;
+    }
   </style>
 </head>
 
 <body>
+  <!-- nav -->
+  <div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="#">YSHA</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+        aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+          <a class="nav-item nav-link active" href="#">接口列表 <span class="sr-only">(current)</span></a>
+          <a class="nav-item nav-link" href="#">基础数据管理</a>
+          <a class="nav-item nav-link" href="#">接口前缀维护</a>
+          <a class="nav-item nav-link" href="#">所属需求模块</a>
+          <a class="nav-item nav-link" href="#">数据扩展</a>
+        </div>
+      </div>
+    </nav>
+  </div>
+
   <div class="p-3">
     <!-- 筛选 -->
     <div>
@@ -24,11 +48,11 @@
         <div class="form-row align-items-center">
           <div class="col-auto">
             <label class="sr-only" for="search-name">接口名称</label>
-            <input type="text" class="form-control mb-2" id="search-name" placeholder="please input name..">
+            <input type="text" class="form-control mb-2" id="search-name" placeholder="接口名称">
           </div>
           <div class="col-auto">
             <label class="sr-only" for="search-url">接口地址</label>
-            <input type="text" class="form-control mb-2" id="search-url" placeholder="please input url..">
+            <input type="text" class="form-control mb-2" id="search-url" placeholder="接口地址">
           </div>
 
           <div class="col-auto">
@@ -50,6 +74,8 @@
           <tr>
             <th scope="col">序号</th>
             <th scope="col">接口名称</th>
+            <th scope="col">接口类型</th>
+            <th scope="col">接口前缀</th>
             <th scope="col">接口地址</th>
             <th scope="col">Mock启用状态</th>
             <th scope="col" class="text-center">操作</th>
@@ -64,7 +90,11 @@
   <tr>
     <th scope="row">{{@index}}</th>
     <td>{{name}}</td>
-    <td>{{url}}</td>
+    <td>
+      <button type="button" class="btn {{formatMethod method}} btn-sm" style="width:56px;">{{method}}</button>
+    </td>
+    <td>{{prefix}}</td>
+    <td>{{path}}</td>
     <td>
       <div class="dropdown">
         <button class="btn {{#if isOpen}}btn-outline-success{{else}}btn-outline-danger{{/if}} dropdown-toggle btn-sm"
@@ -106,12 +136,49 @@
               <input type="email" class="form-control" id="interface-name" placeholder="请输入接口名称">
             </div>
             <div class="form-group">
-              <label for="interface-url">接口地址</label>
-              <input type="email" class="form-control" id="interface-url" placeholder="请输入接口地址 例如:/api/xxx">
+              <label for="interface-path">接口地址</label>
+              <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false" style="width:84px;" data-value="GET"
+                    id="interface-method">GET</button>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#" data-value="GET" onclick="selectedDropdown(this)">GET</a>
+                    <a class="dropdown-item" href="#" data-value="POST" onclick="selectedDropdown(this,)">POST</a>
+                  </div>
+                </div>
+                <div class="input-group-prepend">
+                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false" style="width:186px;" data-value=""
+                    id="interface-prefix">无接口前缀</button>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#" data-value="" onclick="selectedDropdown(this)">无接口前缀</a>
+                    <a class="dropdown-item" href="#" data-value="/ylh-cloud-user-dev"
+                      onclick="selectedDropdown(this)">/ylh-cloud-user-dev</a>
+                    <a class="dropdown-item" href="#" data-value="/ylh-cloud-goods-dev"
+                      onclick="selectedDropdown(this)">/ylh-cloud-goods-dev</a>
+                  </div>
+                </div>
+                <input type="text" class="form-control" id="interface-path" placeholder="请输入接口地址 例如:/api/xxx"
+                  aria-label="Text input with dropdown button">
+              </div>
             </div>
             <div class="form-group">
               <label for="interface-data">模拟数据</label>
+              <br>
+              <div class="clearfix mb-2">
+                <div class="btn-group btn-group-sm float-left" role="group" aria-label="Basic example">
+                  <button type="button" class="btn btn-primary" onclick="changePreview(this,false)">编辑</button>
+                  <button type="button" class="btn btn-outline-primary" onclick="changePreview(this,true)">预览</button>
+                </div>
+                <div class="float-right" id="init-data-btn">
+                  <button type="button" class="btn btn-link btn-sm">初始基础数据</button>
+                  <button type="button" class="btn btn-link btn-sm">初始基础分页数据</button>
+                </div>
+              </div>
               <div class="form-control" id="interface-data"></div>
+              <textarea class="form-control" aria-label="With textarea" id="preview" disabled
+                style="display:none;"></textarea>
             </div>
           </form>
         </div>
@@ -125,6 +192,10 @@
     </div>
   </div>
 
+  <!-- alert info -->
+  <div id="alert" class="alert alert-success position-fixed w-50" role="alert"
+    style="display: none;top:40px;left:50%;margin-left:-25%;z-index:9999999999"></div>
+
   <script src="./lib/jquery.min.js"></script>
   <script src="./lib/popper.min.js"></script>
   <script src="./lib/handlebars.min.js"></script>
@@ -135,7 +206,18 @@
   <script src="./lib/ace-1.4.4/src/mode-json.js"></script>
   <script src="./lib/ace-1.4.4/src/snippets/json.js"></script>
   <script src="./lib/ace-1.4.4/src/ext-language_tools.js"></script>
+
+  <script src="./lib/mock/mock-min.js"></script>
   <script>
+    var Random = Mock.Random;
+
+    Handlebars.registerHelper('formatMethod', (value) => {
+      if (value == 'GET') {
+        return 'btn-primary';
+      } else {
+        return 'btn-success';
+      }
+    })
 
     var editor = ace.edit("interface-data");
     editor.setTheme("ace/theme/chrome");//设置主题
@@ -167,7 +249,7 @@
       },
       {
         name: "mock image",// 没啥用
-        value: "@image",// 实际的值
+        value: Random.image('200x100'),// 实际的值
         caption: "@image",// 显示在补全列表中的值
         meta: "Mock-Image",// 显示在补全列表中的说明
         score: 1000//评分越高越靠前
@@ -243,7 +325,11 @@
         contentType: "application/json",
         success: function (data) {
           if (data.success) {
-            alert('更新成功');
+            if (isOpen) {
+              alertInfo('Mock状态开启成功,你可以使用Mock数据了');
+            } else {
+              alertInfo('Mock状态已停用,你可以使用真实的接口数据了');
+            }
 
             searchlist();
           } else {
@@ -251,6 +337,47 @@
           }
         }
       })
+    }
+
+    // 选择下拉框
+    function selectedDropdown(owner) {
+      $(owner).parent().prev().text($(owner).text());
+      $(owner).parent().prev().attr('data-value', $(owner).attr('data-value'));
+    }
+
+    // 封装alert
+    function alertInfo(content, type) {
+      $('#alert').text(content);
+      var alertEle = document.getElementById('alert');
+      alertEle.className = 'alert position-fixed w-50' + ' alert-' + (type || 'success');
+      $('#alert').fadeIn('fast');
+
+      setTimeout(() => {
+        $('#alert').fadeOut(2500);
+      }, 2500);
+    }
+
+    // 切换预览与编辑
+    function changePreview(owner, isPreview) {
+      if (isPreview) {
+        $('#interface-data').hide();
+        $('#preview').show();
+        $(owner).removeClass('btn-outline-primary').addClass('btn-primary');
+        $(owner).prev().removeClass('btn-primary').addClass('btn-outline-primary');
+
+        //mock
+        try {
+          var mock = JSON5.parse(editor.getValue());
+          $('#preview').val(JSON.stringify(Mock.mock(mock), null, 4));
+        } catch (reason) {
+          $('#preview').val('格式错误:' + reason);
+        }
+      } else {
+        $('#interface-data').show();
+        $('#preview').hide();
+        $(owner).removeClass('btn-outline-primary').addClass('btn-primary');
+        $(owner).next().removeClass('btn-primary').addClass('btn-outline-primary');
+      }
     }
 
     // 查询列表数据
@@ -273,14 +400,17 @@
 
     // 打开新增弹出框
     function openAddModal() {
+      $('#exampleModalLabel').text('新增接口');
+      $('#init-data-btn').show();
+
       $('#save-btn').show();
       $('#update-btn').hide();
 
       $('#interface-name').prop('disabled', false);
-      $('#interface-url').prop('disabled', false);
+      $('#interface-path').prop('disabled', false);
 
       $('#interface-name').val('');
-      $('#interface-url').val('');
+      $('#interface-path').val('');
 
       editor.setValue('');
       editor.setReadOnly(false);//设置编辑器取消只读
@@ -291,11 +421,20 @@
 
       var data = editor.getValue();
 
+      try {
+        var json5Data = JSON5.parse(data);
+      } catch (reason) {
+        alertInfo(reason, 'danger');
+        return;
+      }
+
       var param = {
         name: $('#interface-name').val(),
-        url: $('#interface-url').val(),
-        data: JSON5.parse(data),
+        path: $('#interface-path').val(),
+        data: Mock.mock(json5Data),
         sourceData: JSON5.stringify(data),
+        method: $('#interface-method').attr('data-value'),
+        prefix: $('#interface-prefix').attr('data-value'),
         isOpen: true,
       };
 
@@ -310,7 +449,7 @@
             alert('保存成功');
             $('#exampleModal').modal('hide');
             $('#interface-name').val('');
-            $('#interface-url').val('');
+            $('#interface-path').val('');
 
             searchlist();
           } else {
@@ -322,6 +461,9 @@
 
     // 查看接口
     function getInterface(id) {
+      $('#exampleModalLabel').text('查看接口');
+      $('#init-data-btn').hide();
+
       editor.setReadOnly(true);
 
       $('#exampleModal').modal('show');
@@ -339,12 +481,12 @@
         success: function (data) {
           if (data.success) {
             $('#interface-name').val(data.data.name);
-            $('#interface-url').val(data.data.url);
+            $('#interface-path').val(data.data.path);
             editor.setValue(JSON5.parse(data.data.sourceData));
 
 
             $('#interface-name').prop('disabled', true);
-            $('#interface-url').prop('disabled', true);
+            $('#interface-path').prop('disabled', true);
           } else {
             alert(data.errorMsg);
           }
@@ -354,13 +496,15 @@
 
     // 打开编辑弹出框调用编辑回显接口
     function editInterface(id) {
+      $('#exampleModalLabel').text('编辑接口');
+      $('#init-data-btn').hide();
 
       $('#exampleModal').modal('show');
       $('#save-btn').hide();
       $('#update-btn').show();
       $('#update-btn').prop("data-id", id);
       $('#interface-name').prop('disabled', false);
-      $('#interface-url').prop('disabled', false);
+      $('#interface-path').prop('disabled', false);
       $.ajax({
         url: '/api/get-interface-detail',
         method: 'post',
@@ -372,7 +516,7 @@
         success: function (data) {
           if (data.success) {
             $('#interface-name').val(data.data.name);
-            $('#interface-url').val(data.data.url);
+            $('#interface-path').val(data.data.path);
             editor.setValue(JSON5.parse(data.data.sourceData));
             editor.setReadOnly(false);
           } else {
@@ -411,12 +555,20 @@
     // 更新接口
     function updateInterface() {
       var data = editor.getValue();
+      try {
+        var json5Data = JSON5.parse(data);
+      } catch (reason) {
+        alertInfo(reason, 'danger');
+        return;
+      }
       var param = {
         id: $('#update-btn').prop("data-id"),
         name: $('#interface-name').val(),
-        url: $('#interface-url').val(),
-        data: JSON5.parse(data),
-        sourceData: JSON5.stringify(data)
+        path: $('#interface-path').val(),
+        data: Mock.mock(json5Data),
+        sourceData: JSON5.stringify(data),
+        method: $('#interface-method').attr('data-value'),
+        prefix: $('#interface-prefix').attr('data-value'),
       };
       $.ajax({
         url: '/api/update-interface',

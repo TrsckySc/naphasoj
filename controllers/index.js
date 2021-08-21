@@ -22,7 +22,7 @@ router.get('/', (req, res) => {
   res.send(page);
 });
 
-// 保存接口
+// 新增保存接口
 router.post('/api/add-interface', (req, res) => {
   // 保证url唯一性
   TodoModal.find({ url: req.body.url }, (err, item) => {
@@ -36,6 +36,7 @@ router.post('/api/add-interface', (req, res) => {
     } else {
       // 存入数据库
       let reqBody = req.body;
+      reqBody.url = reqBody.prefix + reqBody.path;
       var todoObj = new TodoModal(reqBody);
 
       todoObj.save((err, todo) => {
@@ -113,9 +114,13 @@ router.post('/api/update-interface', (req, res) => {
   TodoModal.findById(req.body.id, (err, item) => {
     if (err) throw err;
     item.name = req.body.name;
-    item.url = req.body.url;
+    item.path = req.body.path;
+    item.prefix = req.body.prefix;
+    item.url = req.body.prefix + req.body.path;
     item.data = req.body.data;
     item.sourceData = req.body.sourceData;
+    item.method = req.body.method;
+
     item.save((err) => {
       if (err) throw err;
       res.send({
