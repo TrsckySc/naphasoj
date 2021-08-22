@@ -20,14 +20,11 @@ app.use(router);
 
 app.use((req, res, next) => {
   // 拿到地址，去数据库中查询，如果没有则用axios调用接口，否则返回数据库里面的mock数据字段
-  TodoModal.find({ url: req.path }, (err, item) => {
+  TodoModal.find({ url: req.url }, (err, item) => {
     if (err) throw err;
     // 查询到数据并且开启了mock状态，则返回mock数据
-    if (JSON.stringify(item) !== "[]" && item[0].data.isOpen) {
-      res.send({
-        success: true,
-        data: item[0].data
-      });
+    if (JSON.stringify(item) !== "[]" && item[0].isOpen) {
+      res.send(item[0].data);
       return;
     }
 

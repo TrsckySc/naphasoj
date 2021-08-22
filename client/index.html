@@ -12,6 +12,7 @@
       position: relative;
       width: 100%;
       height: 300px;
+      z-index: 1000;
     }
 
     #preview {
@@ -400,6 +401,13 @@
 
     // 打开新增弹出框
     function openAddModal() {
+      $('#interface-method').attr('disabled', false);
+      $('#interface-prefix').attr('disabled', false);
+      $('#interface-method').attr('data-value', 'GET');
+      $('#interface-prefix').attr('data-value', '');
+      $('#interface-method').text('GET');
+      $('#interface-prefix').text('无接口前缀');
+
       $('#exampleModalLabel').text('新增接口');
       $('#init-data-btn').show();
 
@@ -482,6 +490,10 @@
           if (data.success) {
             $('#interface-name').val(data.data.name);
             $('#interface-path').val(data.data.path);
+            $('#interface-method').attr('disabled', true);
+            $('#interface-method').text(data.data.method);
+            $('#interface-prefix').attr('disabled', true);
+            $('#interface-prefix').text(data.data.prefix ? data.data.prefix : '无接口前缀');
             editor.setValue(JSON5.parse(data.data.sourceData));
 
 
@@ -498,6 +510,8 @@
     function editInterface(id) {
       $('#exampleModalLabel').text('编辑接口');
       $('#init-data-btn').hide();
+      $('#interface-method').attr('disabled', false);
+      $('#interface-prefix').attr('disabled', false);
 
       $('#exampleModal').modal('show');
       $('#save-btn').hide();
@@ -517,6 +531,11 @@
           if (data.success) {
             $('#interface-name').val(data.data.name);
             $('#interface-path').val(data.data.path);
+            $('#interface-method').attr('data-value', data.data.method);
+            $('#interface-method').text(data.data.method);
+            $('#interface-prefix').attr('data-value', data.data.prefix);
+            $('#interface-prefix').text(data.data.prefix ? data.data.prefix : '无接口前缀');
+
             editor.setValue(JSON5.parse(data.data.sourceData));
             editor.setReadOnly(false);
           } else {
