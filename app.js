@@ -1,22 +1,44 @@
 var express = require('express');
-var bodyParser = require('body-parser');
-var axios = require('axios');
-var request = require('request');
+const httpProxy = require('http-proxy');
 
 var router = require('./controllers/index');
 
 var TodoModal = require('./controllers/modal');
 
-var app = new express();
+var config = require('./config');
 
-app.set('view engine', 'ejs');
+var app = new express();
 
 app.use(express.static('./client'));
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-
 app.use(router);
+
+//创建代理对象
+let proxy = httpProxy.createProxyServer({
+  //代理地址为http时
+  target: config.target,
+  //是否需要改变原始主机头为目标URL
+  changeOrigin: true,
+  //cookie的作用域
+  // cookieDomainRewrite: {
+  //   '*': 'dev.yilihuo.com'
+  // }
+
+  // 当地址为https时加上秘钥和
+  // ssl: {
+  //     key: fs.readFileSync('server_decrypt.key', 'utf8'),
+  //     cert: fs.readFileSync('server.crt', 'utf8')
+  // },
+  // if you want to verify the SSL Certs
+  // secure: false
+});
+//配置错误处理
+proxy.on('error', function (err, request, response) {
+  response.writeHead(500, {
+    'Content-Type': 'text/plain',
+  });
+  response.status(500).end('服务器异常！');
+});
 
 app.use((req, res, next) => {
   // 拿到地址，去数据库中查询，如果没有则用axios调用接口，否则返回数据库里面的mock数据字段
@@ -29,39 +51,20 @@ app.use((req, res, next) => {
     }
 
     // 否则做接口转发
-    if (req.url.indexOf('/lib/') >= 0 || req.url.indexOf('/favicon') >= 0) {
+    if (req.url.indexOf('.map') >= 0 || req.url == '/favicon.ico') {
       // 针对map文件与favicon文件做了下错误终止
-      axios.get(req.url)
-        .then(function (response) {
-          res.send(response);
-        })
-        .catch(function (error) {
-          res.status(404).end();
-        });
-    } else if (req.method == "GET") {
-      const resp = axios({
-        method: "get",
-        url: "http://12.168.3.34:8001" + req.url,
-        headers: req.headers
-      });
-      resp.then((response) => {
-        res.send(response.data)
-      })
-    } else if (req.method == "POST") {
-      const resp = axios({
-        method: "post",
-        url: "http://12.168.3.34:8001" + req.url,
-        headers: req.headers,
-        data: req.body
-      });
-      resp.then((response) => {
-        res.send(response.data)
-      })
+      res.status(404).end();
     } else {
-      res.send('error');
+      next();
     }
   })
 });
+
+// 非挡板接口代理到测试环境
+app.use(function (req, res) {
+  proxy.web(req, res);
+  return;
+})
 
 app.listen(3004, () => {
   console.log('service started.listen to 3004 port.')

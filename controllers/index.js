@@ -5,7 +5,11 @@ const router = express.Router();
 
 var mongoose = require('mongoose');
 
-var ejs = require('ejs');
+var bodyParser = require('body-parser');
+// create application/json parser
+var jsonParser = bodyParser.json()
+// create application/x-www-form-urlencoded parser
+var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
 var TodoModal = require('./modal');
 
@@ -21,9 +25,14 @@ router.get('/', (req, res) => {
   var page = fs.readFileSync('./index.html', { encoding: "utf8" });
   res.send(page);
 });
+// 基础数据管理页面
+router.get('/base-data', (req, res) => {
+  var page = fs.readFileSync('./base-data.html', { encoding: "utf8" });
+  res.send(page);
+});
 
 // 新增保存接口
-router.post('/api/add-interface', (req, res) => {
+router.post('/api/add-interface', jsonParser, (req, res) => {
   let reqBody = req.body;
   reqBody.url = reqBody.prefix + reqBody.path;
 
@@ -72,7 +81,7 @@ router.get('/api/get-interface-list', (req, res) => {
 });
 
 // 删除接口
-router.post('/api/delete-interface', (req, res) => {
+router.post('/api/delete-interface', jsonParser, (req, res) => {
   if (!req.body || !req.body.id) {
     res.send({
       success: false,
@@ -88,7 +97,7 @@ router.post('/api/delete-interface', (req, res) => {
 });
 
 // 获取单个接口详情
-router.post('/api/get-interface-detail', (req, res) => {
+router.post('/api/get-interface-detail', jsonParser, (req, res) => {
   if (!req.body || !req.body.id) {
     res.send({
       success: false,
@@ -105,7 +114,7 @@ router.post('/api/get-interface-detail', (req, res) => {
 });
 
 // 更新单个接口
-router.post('/api/update-interface', (req, res) => {
+router.post('/api/update-interface', jsonParser, (req, res) => {
   if (!req.body || !req.body.id) {
     res.send({
       success: false,
@@ -133,7 +142,7 @@ router.post('/api/update-interface', (req, res) => {
 });
 
 // 修改接口mock状态
-router.post('/api/change-interface-mock-status', (req, res) => {
+router.post('/api/change-interface-mock-status', jsonParser, (req, res) => {
   if (!req.body || !req.body.id) {
     res.send({
       success: false,
