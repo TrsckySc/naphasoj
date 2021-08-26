@@ -5,10 +5,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>mock</title>
+  <title>基础数据维护 - YSHA</title>
   <link href="./lib/bootstrap.min.css" rel="stylesheet">
   <style>
-    #interface-data {
+    #base-data,
+    #base-page-data {
       position: relative;
       width: 100%;
       height: 300px;
@@ -31,164 +32,28 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
-          <a class="nav-item nav-link active" href="/">接口列表 <span class="sr-only">(current)</span></a>
-          <a class="nav-item nav-link" href="/base-data">基础数据管理</a>
+          <a class="nav-item nav-link" href="/">接口列表 <span class="sr-only">(current)</span></a>
+          <a class="nav-item nav-link active" href="/base-data">基础数据维护</a>
           <a class="nav-item nav-link" href="#">接口前缀维护</a>
-          <a class="nav-item nav-link" href="#">所属需求模块</a>
-          <a class="nav-item nav-link" href="#">数据扩展</a>
+          <a class="nav-item nav-link" href="#">需求模块维护</a>
+          <a class="nav-item nav-link" href="#">数据扩展维护</a>
         </div>
       </div>
     </nav>
   </div>
-
-  <div class="p-3">
-    <!-- 筛选 -->
-    <div>
-      <form>
-        <div class="form-row align-items-center">
-          <div class="col-auto">
-            <label class="sr-only" for="search-name">接口名称</label>
-            <input type="text" class="form-control mb-2" id="search-name" placeholder="接口名称">
-          </div>
-          <div class="col-auto">
-            <label class="sr-only" for="search-url">接口地址</label>
-            <input type="text" class="form-control mb-2" id="search-url" placeholder="接口地址">
-          </div>
-
-          <div class="col-auto">
-            <button type="button" class="btn btn-primary mb-2" onclick="searchlist()">查询</button>
-          </div>
-        </div>
-      </form>
-    </div>
-    <!-- add -->
-    <div class="pt-3 pb-3">
-      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal"
-        onclick="openAddModal()">新增接口
-      </button>
-    </div>
-    <!-- table -->
-    <div>
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">序号</th>
-            <th scope="col">接口名称</th>
-            <th scope="col">接口类型</th>
-            <th scope="col">接口前缀</th>
-            <th scope="col">接口地址</th>
-            <th scope="col">Mock启用状态</th>
-            <th scope="col" class="text-center">操作</th>
-          </tr>
-        </thead>
-        <tbody id="table-tbody"></tbody>
-      </table>
-    </div>
+  <div class="p-3 row">
+    <h4 class="col-2">基础目标地址：</h4>
+    <input type="text" class="form-control col-4" placeholder="例如：12.168.23.15:80">
   </div>
-  <script id="list-template" type="text/x-handlebars-template">
-  {{#each this}}
-  <tr>
-    <th scope="row">{{@index}}</th>
-    <td>{{name}}</td>
-    <td>
-      <button type="button" class="btn {{formatMethod method}} btn-sm" style="width:56px;">{{method}}</button>
-    </td>
-    <td>{{prefix}}</td>
-    <td>{{path}}</td>
-    <td>
-      <div class="dropdown">
-        <button class="btn {{#if isOpen}}btn-outline-success{{else}}btn-outline-danger{{/if}} dropdown-toggle btn-sm"
-                type="button" id="dropdownMenuButton-{{@index}}" data-toggle="dropdown"
-                aria-haspopup="true" aria-expanded="false">
-          {{#if isOpen}}启用中{{else}}停用中{{/if}}
-        </button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton-{{@index}}">
-          <a class="dropdown-item {{#if isOpen}}disabled{{/if}}" href="javascript:;"
-             onclick="changeStatus(this,'{{_id}}',true)">启用</a>
-          <a class="dropdown-item {{#if isOpen}}{{else}}disabled{{/if}}" href="javascript:;"
-             onclick="changeStatus(this,'{{_id}}',false)">停用</a>
-        </div>
-      </div>
-    </td>
-    <td class="text-center">
-      <button type="button" class="btn btn-primary btn-sm" onclick="getInterface('{{_id}}')">查看</button>
-      <button type="button" class="btn btn-info btn-sm" onclick="editInterface('{{_id}}')">编辑</button>
-      <button type="button" class="btn btn-warning btn-sm" onclick="deleteInterface('{{_id}}')">删除</button>
-    </td>
-  </tr>
-  {{/each}}
-  </script>
-  <!-- Modal -->
-  <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">新增接口</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <form>
-            <div class="form-group">
-              <label for="interface-name">接口名称</label>
-              <input type="email" class="form-control" id="interface-name" placeholder="请输入接口名称">
-            </div>
-            <div class="form-group">
-              <label for="interface-path">接口地址</label>
-              <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
-                    aria-haspopup="true" aria-expanded="false" style="width:84px;" data-value="GET"
-                    id="interface-method">GET</button>
-                  <div class="dropdown-menu">
-                    <a class="dropdown-item" href="#" data-value="GET" onclick="selectedDropdown(this)">GET</a>
-                    <a class="dropdown-item" href="#" data-value="POST" onclick="selectedDropdown(this,)">POST</a>
-                  </div>
-                </div>
-                <div class="input-group-prepend">
-                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
-                    aria-haspopup="true" aria-expanded="false" style="width:186px;" data-value=""
-                    id="interface-prefix">无接口前缀</button>
-                  <div class="dropdown-menu">
-                    <a class="dropdown-item" href="#" data-value="" onclick="selectedDropdown(this)">无接口前缀</a>
-                    <a class="dropdown-item" href="#" data-value="/ylh-cloud-service-user-dev"
-                      onclick="selectedDropdown(this)">/ylh-cloud-service-user-dev</a>
-                    <a class="dropdown-item" href="#" data-value="/ylh-cloud-service-goods-dev"
-                      onclick="selectedDropdown(this)">/ylh-cloud-service-goods-dev</a>
-                  </div>
-                </div>
-                <input type="text" class="form-control" id="interface-path" placeholder="请输入接口地址 例如:/api/xxx"
-                  aria-label="Text input with dropdown button">
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="interface-data">模拟数据</label>
-              <br>
-              <div class="clearfix mb-2">
-                <div class="btn-group btn-group-sm float-left" role="group" aria-label="Basic example">
-                  <button type="button" class="btn btn-primary" onclick="changePreview(this,false)">编辑</button>
-                  <button type="button" class="btn btn-outline-primary" onclick="changePreview(this,true)">预览</button>
-                </div>
-                <div class="float-right" id="init-data-btn">
-                  <button type="button" class="btn btn-link btn-sm">初始基础数据</button>
-                  <button type="button" class="btn btn-link btn-sm">初始基础分页数据</button>
-                </div>
-              </div>
-              <div class="form-control" id="interface-data"></div>
-              <textarea class="form-control" aria-label="With textarea" id="preview" disabled
-                style="display:none;"></textarea>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
-          <button type="button" class="btn btn-primary" onclick="saveInterface()" id="save-btn">保存</button>
-          <button type="button" class="btn btn-primary" onclick="updateInterface()" id="update-btn">更新
-          </button>
-        </div>
-      </div>
+  <hr>
+  <div class="p-3 row">
+    <div class="col">
+      <h4>响应体基础数据</h4>
+      <div id="base-data"></div>
+    </div>
+    <div class="col">
+      <h4>响应体基础分页数据</h4>
+      <div id="base-page-data"></div>
     </div>
   </div>
 
@@ -209,143 +74,37 @@
 
   <script src="./lib/mock/mock-min.js"></script>
   <script>
-    var Random = Mock.Random;
+    // 初始化编辑器
+    function initAce(elementId) {
+      var editor = ace.edit(elementId);
+      editor.setTheme("ace/theme/chrome");//设置主题
+      var JavaScriptMode = ace.require("ace/mode/json").Mode;
+      editor.session.setMode(new JavaScriptMode());//设置程序语言模式
 
-    Handlebars.registerHelper('formatMethod', (value) => {
-      if (value == 'GET') {
-        return 'btn-primary';
-      } else {
-        return 'btn-success';
-      }
-    })
-
-    var editor = ace.edit("interface-data");
-    editor.setTheme("ace/theme/chrome");//设置主题
-    var JavaScriptMode = ace.require("ace/mode/json").Mode;
-    editor.session.setMode(new JavaScriptMode());//设置程序语言模式
-    // 自定义补全列表
-    var autoCompleteData = [
-      {
-        name: "mock string",// 没啥用
-        value: "@string",// 实际的值
-        caption: "@string",// 显示在补全列表中的值
-        meta: "Mock-String",// 显示在补全列表中的说明
-        type: "local",//好像也没啥用
-        score: 1000//评分越高越靠前
-      },
-      {
-        name: "mock number",// 没啥用
-        value: "@number",// 实际的值
-        caption: "@number",// 显示在补全列表中的值
-        meta: "Mock-Number",// 显示在补全列表中的说明
-        score: 1000//评分越高越靠前
-      },
-      {
-        name: "mock integer",// 没啥用
-        value: "@integer",// 实际的值
-        caption: "@integer",// 显示在补全列表中的值
-        meta: "Mock-Integer",// 显示在补全列表中的说明
-        score: 1000//评分越高越靠前
-      },
-      {
-        name: "mock image",// 没啥用
-        value: Random.image('200x100'),// 实际的值
-        caption: "@image",// 显示在补全列表中的值
-        meta: "Mock-Image",// 显示在补全列表中的说明
-        score: 1000//评分越高越靠前
-      },
-    ]
-    // 设置自动补全
-    var tangideCompleter = {
-      identifierRegexps: [/[a-zA-Z_0-9\@\-\u00A2-\uFFFF]/],
-      getCompletions: function (editor, session, pos, prefix, callback) {
-        if (prefix.length === 0) {
-          return callback(null, []);
-        } else {
-          return callback(null, autoCompleteData);
-        }
-      }
-    };
-    editor.setOptions({
-      enableBasicAutocompletion: true,
-      enableSnippets: true,
-      enableLiveAutocompletion: true
-    });
-    var langTools = ace.require("ace/ext/language_tools");
-    langTools.addCompleter(tangideCompleter);
-
-    // 设置全屏
-    editor.commands.addCommand({
-      name: "fullscreen",
-      bindKey: { win: "Ctrl-Enter", mac: "Command-Enter" },
-      exec: function (editor) {
-        // 通过css来控制全屏
-        if (editor.isFullScreen) {
-          $('#interface-data').css({
-            position: 'relative',
-            left: 0,
-            top: 0,
-            width: '100%',
-            height: '300px',
-            'z-index': 'auto'
-          })
-          editor.resize();
-          editor.isFullScreen = false;
-          document.body.style.overflow = "auto";
-        } else {
-          $('#interface-data').css({
-            position: 'fixed',
-            left: 0,
-            top: 0,
-            width: $(window).width(),
-            height: $(window).height(),
-            'z-index': '1000'
-          })
-          editor.resize();
-          editor.isFullScreen = true;
-          document.body.style.overflow = "hidden";
-        }
-      },
-      readOnly: true // 只读下设置可以全屏展示
-    });
-
-    // editor.getSession().setUseWrapMode(true);//设置折叠 默认折叠的
-    editor.getSession().setTabSize(2);// 设置制表符大小
-
-    // 切换状态
-    function changeStatus(owner, id, isOpen) {
-      console.log('1231231', owner.text);
-      var param = {
-        id: id,
-        isOpen: isOpen,
-      };
-      $.ajax({
-        url: '/api/change-interface-mock-status',
-        method: 'post',
-        dataType: "json",
-        data: JSON.stringify(param),
-        contentType: "application/json",
-        success: function (data) {
-          if (data.success) {
-            if (isOpen) {
-              alertInfo('Mock状态开启成功,你可以使用Mock数据了');
-            } else {
-              alertInfo('Mock状态已停用,你可以使用真实的接口数据了');
-            }
-
-            searchlist();
+      // 设置自动补全
+      var tangideCompleter = {
+        getCompletions: function (editor, session, pos, prefix, callback) {
+          if (prefix.length === 0) {
+            return callback(null, []);
           } else {
-            alert(data.errorMsg);
+            return callback(null, autoCompleteData);
           }
         }
-      })
+      };
+      editor.setOptions({
+        enableBasicAutocompletion: true,
+        enableSnippets: true,
+        enableLiveAutocompletion: true
+      });
+      var langTools = ace.require("ace/ext/language_tools");
+      langTools.addCompleter(tangideCompleter);
+
+      // editor.getSession().setUseWrapMode(true);//设置折叠 默认折叠的
+      editor.getSession().setTabSize(2);// 设置制表符大小
     }
 
-    // 选择下拉框
-    function selectedDropdown(owner) {
-      $(owner).parent().prev().text($(owner).text());
-      $(owner).parent().prev().attr('data-value', $(owner).attr('data-value'));
-    }
+    initAce('base-data');
+    initAce('base-page-data');
 
     // 封装alert
     function alertInfo(content, type) {
@@ -380,233 +139,6 @@
         $(owner).removeClass('btn-outline-primary').addClass('btn-primary');
         $(owner).next().removeClass('btn-primary').addClass('btn-outline-primary');
       }
-    }
-
-    // 查询列表数据
-    function searchlist() {
-      var param = {};
-      if ($('#search-name').val()) {
-        param.name = $('#search-name').val();
-      }
-      if ($('#search-url').val()) {
-        param.url = $('#search-url').val();
-      }
-      $.get('/api/get-interface-list', param, function (data) {
-        console.log(data);
-        var html = Handlebars.compile($('#list-template').html());
-        $("#table-tbody").html(html(data.data));
-      })
-    }
-
-    searchlist();
-
-    // 打开新增弹出框
-    function openAddModal() {
-      $('#interface-method').attr('disabled', false);
-      $('#interface-prefix').attr('disabled', false);
-      $('#interface-method').attr('data-value', 'GET');
-      $('#interface-prefix').attr('data-value', '');
-      $('#interface-method').text('GET');
-      $('#interface-prefix').text('无接口前缀');
-
-      $('#exampleModalLabel').text('新增接口');
-      $('#init-data-btn').show();
-
-      $('#save-btn').show();
-      $('#update-btn').hide();
-
-      $('#interface-name').prop('disabled', false);
-      $('#interface-path').prop('disabled', false);
-
-      $('#interface-name').val('');
-      $('#interface-path').val('');
-
-      editor.setValue('');
-      editor.setReadOnly(false);//设置编辑器取消只读
-    }
-
-    // 新增保存接口
-    function saveInterface() {
-
-      var data = editor.getValue();
-
-      try {
-        var json5Data = JSON5.parse(data);
-      } catch (reason) {
-        alertInfo(reason, 'danger');
-        return;
-      }
-
-      var param = {
-        name: $('#interface-name').val(),
-        path: $('#interface-path').val(),
-        data: Mock.mock(json5Data),
-        sourceData: JSON5.stringify(data),
-        method: $('#interface-method').attr('data-value'),
-        prefix: $('#interface-prefix').attr('data-value'),
-        isOpen: true,
-      };
-
-      $.ajax({
-        url: '/api/add-interface',
-        method: 'post',
-        dataType: "json",
-        data: JSON.stringify(param),
-        contentType: "application/json",
-        success: function (data) {
-          if (data.success) {
-            alert('保存成功');
-            $('#exampleModal').modal('hide');
-            $('#interface-name').val('');
-            $('#interface-path').val('');
-
-            searchlist();
-          } else {
-            alert(data.errorMsg);
-          }
-        }
-      })
-    }
-
-    // 查看接口
-    function getInterface(id) {
-      $('#exampleModalLabel').text('查看接口');
-      $('#init-data-btn').hide();
-
-      editor.setReadOnly(true);
-
-      $('#exampleModal').modal('show');
-      $('#save-btn').hide();
-      $('#update-btn').hide();
-
-      $.ajax({
-        url: '/api/get-interface-detail',
-        method: 'post',
-        dataType: "json",
-        data: JSON.stringify({
-          id: id
-        }),
-        contentType: "application/json",
-        success: function (data) {
-          if (data.success) {
-            $('#interface-name').val(data.data.name);
-            $('#interface-path').val(data.data.path);
-            $('#interface-method').attr('disabled', true);
-            $('#interface-method').text(data.data.method);
-            $('#interface-prefix').attr('disabled', true);
-            $('#interface-prefix').text(data.data.prefix ? data.data.prefix : '无接口前缀');
-            editor.setValue(JSON5.parse(data.data.sourceData));
-
-
-            $('#interface-name').prop('disabled', true);
-            $('#interface-path').prop('disabled', true);
-          } else {
-            alert(data.errorMsg);
-          }
-        }
-      })
-    }
-
-    // 打开编辑弹出框调用编辑回显接口
-    function editInterface(id) {
-      $('#exampleModalLabel').text('编辑接口');
-      $('#init-data-btn').hide();
-      $('#interface-method').attr('disabled', false);
-      $('#interface-prefix').attr('disabled', false);
-
-      $('#exampleModal').modal('show');
-      $('#save-btn').hide();
-      $('#update-btn').show();
-      $('#update-btn').prop("data-id", id);
-      $('#interface-name').prop('disabled', false);
-      $('#interface-path').prop('disabled', false);
-      $.ajax({
-        url: '/api/get-interface-detail',
-        method: 'post',
-        dataType: "json",
-        data: JSON.stringify({
-          id: id
-        }),
-        contentType: "application/json",
-        success: function (data) {
-          if (data.success) {
-            $('#interface-name').val(data.data.name);
-            $('#interface-path').val(data.data.path);
-            $('#interface-method').attr('data-value', data.data.method);
-            $('#interface-method').text(data.data.method);
-            $('#interface-prefix').attr('data-value', data.data.prefix);
-            $('#interface-prefix').text(data.data.prefix ? data.data.prefix : '无接口前缀');
-
-            editor.setValue(JSON5.parse(data.data.sourceData));
-            editor.setReadOnly(false);
-          } else {
-            alert(data.errorMsg);
-          }
-        }
-      })
-    }
-
-    // 删除接口
-    function deleteInterface(id) {
-      var emp = confirm('是否删除该接口？');
-      if (emp != 0) {
-        // 调删除接口
-        $.ajax({
-          url: '/api/delete-interface',
-          method: 'post',
-          dataType: "json",
-          data: JSON.stringify({
-            id: id
-          }),
-          contentType: "application/json",
-          success: function (data) {
-            if (data.success) {
-              alertInfo('删除成功');
-
-              searchlist();
-            } else {
-              alert(data.errorMsg, 'danger');
-            }
-          }
-        })
-      }
-    }
-
-    // 更新接口
-    function updateInterface() {
-      var data = editor.getValue();
-      try {
-        var json5Data = JSON5.parse(data);
-      } catch (reason) {
-        alertInfo(reason, 'danger');
-        return;
-      }
-      var param = {
-        id: $('#update-btn').prop("data-id"),
-        name: $('#interface-name').val(),
-        path: $('#interface-path').val(),
-        data: Mock.mock(json5Data),
-        sourceData: JSON5.stringify(data),
-        method: $('#interface-method').attr('data-value'),
-        prefix: $('#interface-prefix').attr('data-value'),
-      };
-      $.ajax({
-        url: '/api/update-interface',
-        method: 'post',
-        dataType: "json",
-        data: JSON.stringify(param),
-        contentType: "application/json",
-        success: function (data) {
-          if (data.success) {
-            alert('更新成功');
-            $('#exampleModal').modal('hide');
-
-            searchlist();
-          } else {
-            alert(data.errorMsg);
-          }
-        }
-      })
     }
 
   </script>

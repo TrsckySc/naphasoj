@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>mock</title>
+  <title>接口列表 - YSHA</title>
   <link href="./lib/bootstrap.min.css" rel="stylesheet">
   <style>
     #interface-data {
@@ -32,10 +32,10 @@
       <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
           <a class="nav-item nav-link active" href="/">接口列表 <span class="sr-only">(current)</span></a>
-          <a class="nav-item nav-link" href="/base-data">基础数据管理</a>
+          <a class="nav-item nav-link" href="/base-data">基础数据维护</a>
           <a class="nav-item nav-link" href="#">接口前缀维护</a>
-          <a class="nav-item nav-link" href="#">所属需求模块</a>
-          <a class="nav-item nav-link" href="#">数据扩展</a>
+          <a class="nav-item nav-link" href="#">需求模块维护</a>
+          <a class="nav-item nav-link" href="#">数据扩展维护</a>
         </div>
       </div>
     </nav>
@@ -149,7 +149,7 @@
                 </div>
                 <div class="input-group-prepend">
                   <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
-                    aria-haspopup="true" aria-expanded="false" style="width:186px;" data-value=""
+                    aria-haspopup="true" aria-expanded="false" style="width:254px;" data-value=""
                     id="interface-prefix">无接口前缀</button>
                   <div class="dropdown-menu">
                     <a class="dropdown-item" href="#" data-value="" onclick="selectedDropdown(this)">无接口前缀</a>
@@ -355,7 +355,7 @@
       $('#alert').fadeIn('fast');
 
       setTimeout(() => {
-        $('#alert').fadeOut(2500);
+        $('#alert').fadeOut('slow');
       }, 2500);
     }
 
@@ -380,6 +380,19 @@
         $(owner).removeClass('btn-outline-primary').addClass('btn-primary');
         $(owner).next().removeClass('btn-primary').addClass('btn-outline-primary');
       }
+    }
+
+    // 校验表单必填项
+    function checkForm() {
+      if (!$('#interface-name').val()) {
+        alertInfo('请输入接口名称', 'warning');
+        return false;
+      }
+      if (!$('#interface-path').val()) {
+        alertInfo('请输入接口地址', 'warning');
+        return false;
+      }
+      return true;
     }
 
     // 查询列表数据
@@ -427,6 +440,8 @@
 
     // 新增保存接口
     function saveInterface() {
+
+      if (!checkForm()) return;
 
       var data = editor.getValue();
 
@@ -574,6 +589,7 @@
 
     // 更新接口
     function updateInterface() {
+      if (!checkForm()) return;
       var data = editor.getValue();
       try {
         var json5Data = JSON5.parse(data);

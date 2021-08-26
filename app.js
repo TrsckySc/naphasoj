@@ -9,7 +9,9 @@ var config = require('./config');
 
 var app = new express();
 
-app.use(express.static('./client'));
+app.use(express.static('client', {
+  extensions: ['html'],
+}))
 
 app.use(router);
 
