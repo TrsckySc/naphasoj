@@ -12,6 +12,7 @@ var jsonParser = bodyParser.json()
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
 var TodoModal = require('./modal');
+var BaseDataModal = require('./baseDataModal');
 
 mongoose.connect('mongodb://localhost/myapp', { useNewUrlParser: true });
 var db = mongoose.connection;
@@ -157,6 +158,65 @@ router.post('/api/change-interface-mock-status', jsonParser, (req, res) => {
       res.send({
         success: true
       })
+    })
+  })
+});
+
+// 查询所有基础数据
+router.get('/api/get-base-list', (req, res) => {
+  BaseDataModal.find({}, (err, items) => {
+    if (err) throw err;
+    res.send({
+      success: true,
+      data: items
+    })
+  })
+})
+
+// 更新单个基础数据
+router.post('/api/update-base-data', jsonParser, (req, res) => {
+  if (!req.body.id) {
+    // 置为新增
+    var todoObj = new BaseDataModal(req.body);
+
+    todoObj.save((err, todo) => {
+      if (err) throw err;
+      res.send({
+        success: true
+      });
+    })
+  } else {
+    // 更新数据
+    BaseDataModal.findById(req.body.id, (err, item) => {
+      if (err) throw err;
+      item.aceData = req.body.aceData;
+      item.data = req.body.data;
+
+      item.save((err) => {
+        if (err) throw err;
+        res.send({
+          success: true
+        })
+      })
+
+    })
+  }
+
+});
+
+// 查询单个基础数据
+router.post('/api/get-base-data-by-id', jsonParser, (req, res) => {
+  if (!req.body || !req.body.id) {
+    res.send({
+      success: false,
+      errorMsg: "缺少接口id"
+    })
+  }
+  BaseDataModal.findById(req.body.id, (err, item) => {
+    if (err) throw err;
+    res.send({
+      success: true,
+      data: item
     })
   })
 });

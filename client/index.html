@@ -172,8 +172,9 @@
                   <button type="button" class="btn btn-outline-primary" onclick="changePreview(this,true)">预览</button>
                 </div>
                 <div class="float-right" id="init-data-btn">
-                  <button type="button" class="btn btn-link btn-sm">初始基础数据</button>
-                  <button type="button" class="btn btn-link btn-sm">初始基础分页数据</button>
+                  <button type="button" class="btn btn-link btn-sm" onclick="initBaseData('base-data')">初始基础数据</button>
+                  <button type="button" class="btn btn-link btn-sm"
+                    onclick="initBaseData('base-data-page')">初始基础分页数据</button>
                 </div>
               </div>
               <div class="form-control" id="interface-data"></div>
@@ -618,6 +619,49 @@
             $('#exampleModal').modal('hide');
 
             searchlist();
+          } else {
+            alert(data.errorMsg);
+          }
+        }
+      })
+    }
+    var baseId = '';
+    var basePageId = '';
+    $.get('/api/get-base-list', {}, function (data) {
+      if (data.success && data.length != 0) {
+        data.data.forEach((item) => {
+          if (item.type == 'base-data') {
+            baseId = item._id;
+          } else {
+            basePageId = item._id;
+          }
+        })
+      }
+    })
+
+    // 初始化基础数据
+    function initBaseData(type) {
+      var id;
+      if (type == 'base-data') {
+        id = baseId;
+      } else {
+        id = basePageId;
+      }
+      if (!id) {
+        alertInfo('还没有维护基础数据,请去维护基础数据', 'warning');
+        return;
+      }
+      $.ajax({
+        url: '/api/get-base-data-by-id',
+        method: 'post',
+        dataType: "json",
+        data: JSON.stringify({
+          id: id
+        }),
+        contentType: "application/json",
+        success: function (data) {
+          if (data.success) {
+            editor.setValue(JSON.stringify(data.data.data, null, 2));
           } else {
             alert(data.errorMsg);
           }
