@@ -11,10 +11,12 @@ var jsonParser = bodyParser.json()
 // create application/x-www-form-urlencoded parser
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
+var config = require('../config');
+
 var TodoModal = require('./modal');
 var BaseDataModal = require('./baseDataModal');
 
-mongoose.connect('mongodb://localhost/myapp', { useNewUrlParser: true });
+mongoose.connect(config.mongodb, { useNewUrlParser: true });
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function () {
