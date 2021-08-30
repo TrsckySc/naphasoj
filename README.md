@@ -1,39 +1,28 @@
 # mock-data
 
 #### 介绍
-{**以下是码云平台说明，您可以替换此简介**
-码云是 OSCHINA 推出的基于 Git 的代码托管平台（同时支持 SVN）。专为开发者提供稳定、高效、安全的云端软件开发协作平台
-无论是个人、团队、或是企业，都能够用码云实现代码托管、项目管理、协作开发。企业项目请看 [https://gitee.com/enterprises](https://gitee.com/enterprises)}
+API 挡板接口管理工程,支持多后台工程多接口配置地址,真正实现前端接口联调时代码零修改.模拟数据采用json5编辑,妈妈再也不担心我写json了,如果你还不知道啥是json5,去问下度娘吧.添加可视化界面,可随时修改返回的数据,随时处理可能会发生的情况.再也不用担心漏下什么逻辑了,除非你漏了需求.
 
 #### 软件架构
-软件架构说明
+nodejs+mongodb
 
 
 #### 安装教程
 
-1. xxxx
-2. xxxx
-3. xxxx
+1. 先安装mongodb
+2. `git clone https://gitee.com/seebin/mock-data.git`
+3. `cd mock-data`
+4. `npm install`
+5. `npm start`
+6. 浏览器访问`http://localhost:3004`
 
 #### 使用说明
 
-1. xxxx
-2. xxxx
-3. xxxx
+1. 将前端工程的测试环境的ip地址改为:127.0.0.1:3004
+2. 浏览器打开页面:127.0.0.1:3004 来访问接口管理可视化页面
+3. 试试添加一个接口,保存成功后默认开启mock功能,前端业务工程访问接口返回mock数据,关闭mock状态,则请求真实的接口
+4. 愉快的使用起来吧!
 
 #### 参与贡献
 
-1. Fork 本仓库
-2. 新建 Feat_xxx 分支
-3. 提交代码
-4. 新建 Pull Request
-
-
-#### 码云特技
-
-1. 使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2. 码云官方博客 [blog.gitee.com](https://blog.gitee.com)
-3. 你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解码云上的优秀开源项目
-4. [GVP](https://gitee.com/gvp) 全称是码云最有价值开源项目，是码云综合评定出的优秀开源项目
-5. 码云官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6. 码云封面人物是一档用来展示码云会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+作者:seebin
