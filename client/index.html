@@ -72,13 +72,13 @@
       <table class="table">
         <thead>
           <tr>
-            <th scope="col">序号</th>
-            <th scope="col">接口名称</th>
-            <th scope="col">接口类型</th>
-            <th scope="col">接口前缀</th>
-            <th scope="col">接口地址</th>
-            <th scope="col">Mock启用状态</th>
-            <th scope="col" class="text-center">操作</th>
+            <th scope="col" width="5%" class="text-center">序号</th>
+            <th scope="col" width="10">接口名称</th>
+            <th scope="col" width="8%" class="text-center">接口类型</th>
+            <th scope="col" width="20%">接口前缀</th>
+            <th scope="col" width="30%">接口地址</th>
+            <th scope="col" width="12%" class="text-center">Mock启用状态</th>
+            <th scope="col" width="15%" class="text-center">操作</th>
           </tr>
         </thead>
         <tbody id="table-tbody"></tbody>
@@ -88,14 +88,14 @@
   <script id="list-template" type="text/x-handlebars-template">
   {{#each this}}
   <tr>
-    <th scope="row">{{@index}}</th>
+    <th scope="row" class="text-center">{{addOne @index}}</th>
     <td>{{name}}</td>
-    <td>
+    <td class="text-center">
       <button type="button" class="btn {{formatMethod method}} btn-sm" style="width:56px;">{{method}}</button>
     </td>
-    <td>{{prefix}}</td>
+    <td>{{noValue prefix}}</td>
     <td>{{path}}</td>
-    <td>
+    <td class="text-center">
       <div class="dropdown">
         <button class="btn {{#if isOpen}}btn-outline-success{{else}}btn-outline-danger{{/if}} dropdown-toggle btn-sm"
                 type="button" id="dropdownMenuButton-{{@index}}" data-toggle="dropdown"
@@ -171,11 +171,16 @@
                   <button type="button" class="btn btn-primary" onclick="changePreview(this,false)">编辑</button>
                   <button type="button" class="btn btn-outline-primary" onclick="changePreview(this,true)">预览</button>
                 </div>
+
                 <div class="float-right" id="init-data-btn">
                   <button type="button" class="btn btn-link btn-sm" onclick="initBaseData('base-data')">初始基础数据</button>
                   <button type="button" class="btn btn-link btn-sm"
                     onclick="initBaseData('base-data-page')">初始基础分页数据</button>
                 </div>
+                <!-- 交互逻辑问题,待保留 -->
+                <!-- <div class="float-right" id="init-mock-btn">
+                  <button type="button" class="btn btn-link btn-sm" onclick="initMock()">生成Mock数据</button>
+                </div> -->
               </div>
               <div class="form-control" id="interface-data"></div>
               <textarea class="form-control" aria-label="With textarea" id="preview" disabled
@@ -217,6 +222,16 @@
         return 'btn-primary';
       } else {
         return 'btn-success';
+      }
+    })
+    Handlebars.registerHelper('addOne', (value) => {
+      return value + 1;
+    })
+    Handlebars.registerHelper('noValue', (value) => {
+      if (value) {
+        return value;
+      } else {
+        return '-';
       }
     })
 
@@ -435,6 +450,8 @@
       $('#interface-name').val('');
       $('#interface-path').val('');
 
+      $('#init-mock-btn').show();
+
       editor.setValue('');
       editor.setReadOnly(false);//设置编辑器取消只读
     }
@@ -494,6 +511,7 @@
       $('#exampleModal').modal('show');
       $('#save-btn').hide();
       $('#update-btn').hide();
+      $('#init-mock-btn').hide();
 
       $.ajax({
         url: '/api/get-interface-detail',
@@ -536,6 +554,7 @@
       $('#update-btn').prop("data-id", id);
       $('#interface-name').prop('disabled', false);
       $('#interface-path').prop('disabled', false);
+      $('#init-mock-btn').show();
       $.ajax({
         url: '/api/get-interface-detail',
         method: 'post',
@@ -667,6 +686,16 @@
           }
         }
       })
+    }
+
+    // 生成mock数据
+    function initMock() {
+      try {
+        var mock = JSON5.parse(editor.getValue());
+        $('#preview').val(JSON.stringify(Mock.mock(mock), null, 4));
+      } catch (reason) {
+        alertInfo('格式错误:' + reason, 'danger');
+      }
     }
 
   </script>
