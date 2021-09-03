@@ -62,12 +62,12 @@ app.use((req, res, next) => {
   })
 });
 
-// 非挡板接口代理到测试环境
+// 非挡板接口代理到目标环境
 app.use(function (req, res) {
   proxy.web(req, res);
   return;
 })
 
 app.listen(3004, () => {
-  console.log('service started.listen to 3004 port.')
+  console.log('service is started. listen to 3004 port. open the following address in the browser.\n  http://127.0.0.1:3004');
 });

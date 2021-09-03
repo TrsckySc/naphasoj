@@ -4,12 +4,17 @@
 API 挡板接口管理工程,支持多后台工程多接口配置地址,真正实现前端接口联调时代码零修改.模拟数据采用json5编辑,妈妈再也不担心我写json了,如果你还不知道啥是json5,去问下度娘吧.添加可视化界面,可随时修改返回的数据,随时处理可能会发生的情况.再也不用担心漏下什么逻辑了,除非你漏了需求.
 
 #### 软件架构
-nodejs+mongodb
+
+后端技术栈
+nodejs、mongodb、express
+
+前端技术栈
+jquery、bootstrap、json5、ace、mockjs
 
 
 #### 安装教程
 
-1. 先安装mongodb
+1. 先安装mongodb, [MongoDB官网下载链接](https://www.mongodb.com/download-center/community)
 2. `git clone https://gitee.com/seebin/mock-data.git`
 3. `cd mock-data`
 4. `npm install`
@@ -18,8 +23,8 @@ nodejs+mongodb
 
 #### 使用说明
 
-1. 将前端工程的测试环境的ip地址改为:127.0.0.1:3004
-2. 浏览器打开页面:127.0.0.1:3004 来访问接口管理可视化页面
+1. 将前端工程的测试环境的ip地址改为:`127.0.0.1:3004`
+2. 浏览器打开页面:`127.0.0.1:3004` 来访问接口管理可视化页面
 3. 试试添加一个接口,保存成功后默认开启mock功能,前端业务工程访问接口返回mock数据,关闭mock状态,则请求真实的接口
 4. 愉快的使用起来吧!
 
