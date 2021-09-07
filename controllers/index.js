@@ -23,17 +23,6 @@ db.once('open', function () {
   // console.log('mongodb is connected.')
 });
 
-// 客户端页面
-router.get('/', (req, res) => {
-  var page = fs.readFileSync('./index.html', { encoding: "utf8" });
-  res.send(page);
-});
-// 基础数据管理页面
-router.get('/base-data', (req, res) => {
-  var page = fs.readFileSync('./base-data.html', { encoding: "utf8" });
-  res.send(page);
-});
-
 // 新增保存接口
 router.post('/api/add-interface', jsonParser, (req, res) => {
   let reqBody = req.body;

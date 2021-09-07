@@ -9,9 +9,8 @@ var config = require('./config');
 
 var app = new express();
 
-app.use(express.static('client', {
-  extensions: ['html'],
-}))
+app.use('/mock', express.static('client'));
+
 
 app.use(router);
 
@@ -69,5 +68,5 @@ app.use(function (req, res) {
 })
 
 app.listen(3004, () => {
-  console.log('service is started. listen to 3004 port. open the following address in the browser.\n  http://127.0.0.1:3004');
+  console.log('service is started. listen to 3004 port. open the following address in the browser.\n  http://127.0.0.1:3004/mock');
 });
