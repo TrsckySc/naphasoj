@@ -12,11 +12,7 @@
     #base-page-data {
       position: relative;
       width: 100%;
-      height: 300px;
-    }
-
-    #preview {
-      height: 300px;
+      height: 400px;
     }
   </style>
 </head>
@@ -45,14 +41,14 @@
   <div class="p-3 row">
     <div class="col">
       <h4>响应体基础数据</h4>
-      <div id="base-data"></div>
+      <div id="base-data" class="form-control"></div>
       <div class="mt-2">
         <button type="button" class="btn btn-primary btm-sm" onclick="saveBase()">保存</button>
       </div>
     </div>
     <div class="col">
       <h4>响应体基础分页数据</h4>
-      <div id="base-page-data"></div>
+      <div id="base-page-data" class="form-control"></div>
       <div class="mt-2">
         <button type="button" class="btn btn-primary btm-sm" onclick="saveBasePage()">保存</button>
       </div>
@@ -84,6 +80,7 @@
       var JavaScriptMode = ace.require("ace/mode/json").Mode;
       editor.session.setMode(new JavaScriptMode());//设置程序语言模式
 
+
       // 设置自动补全
       var tangideCompleter = {
         getCompletions: function (editor, session, pos, prefix, callback) {
@@ -98,7 +95,45 @@
       var langTools = ace.require("ace/ext/language_tools");
       langTools.addCompleter(tangideCompleter);
 
-      // editor.getSession().setUseWrapMode(true);//设置折叠 默认折叠的
+      // 设置全屏
+      editor.commands.addCommand({
+        name: "fullscreen",
+        bindKey: { win: "Ctrl-Enter", mac: "Command-Enter" },
+        exec: function (editor) {
+          // 通过css来控制全屏
+          if (editor.isFullScreen) {
+            $('#' + elementId).css({
+              position: 'relative',
+              left: 0,
+              top: 0,
+              width: '100%',
+              height: '400px',
+              'z-index': 'auto'
+            })
+            editor.resize();
+            editor.isFullScreen = false;
+            document.body.style.overflow = "auto";
+          } else {
+            $('#' + elementId).css({
+              position: 'fixed',
+              left: 0,
+              top: 0,
+              width: $(window).width(),
+              height: $(window).height(),
+              'z-index': '1000'
+            })
+            editor.resize();
+            editor.isFullScreen = true;
+            document.body.style.overflow = "hidden";
+          }
+        },
+        readOnly: true // 只读下设置可以全屏展示
+      });
+
+      //字体大小 这里采用默认
+      // editor.setFontSize(18);
+      //自动换行,设置为off关闭
+      editor.setOption("wrap", "free")
       editor.getSession().setTabSize(2);// 设置制表符大小
 
       return editor;
