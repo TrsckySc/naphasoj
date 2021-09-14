@@ -14,7 +14,7 @@ jquery、bootstrap、json5、ace、mockjs
 
 #### 安装教程
 
-1. 先安装mongodb, [MongoDB官网下载链接](https://www.mongodb.com/download-center/community)
+1. 先下载安装mongodb, [MongoDB官网下载链接](https://www.mongodb.com/download-center/community)
 2. `git clone https://gitee.com/seebin/mock-data.git`
 3. `cd mock-data`
 4. `npm install`
@@ -31,3 +31,7 @@ jquery、bootstrap、json5、ace、mockjs
 #### 参与贡献
 
 作者:seebin
+
+#### 相关链接
+
+[Mac电脑安装mongodb教程](http://note.youdao.com/noteshare?id=ff4b17665bdab2022c67571b716c5be3)
