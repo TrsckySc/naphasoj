@@ -20,7 +20,7 @@ let proxy = httpProxy.createProxyServer({
   target: config.target,
   //是否需要改变原始主机头为目标URL
   changeOrigin: true,
-  //cookie的作用域
+  // 重写cookie的作用域
   // cookieDomainRewrite: {
   //   '*': 'dev.yilihuo.com'
   // }
@@ -50,14 +50,9 @@ app.use((req, res, next) => {
       res.send(item[0].data);
       return;
     }
-
-    // 否则做接口转发
-    if (req.url.indexOf('.map') >= 0 || req.url == '/favicon.ico') {
-      // 针对map文件与favicon文件做了下错误终止
-      res.status(404).end();
-    } else {
-      next();
-    }
+    
+    // 否则做代理转发
+    next();
   })
 });
 
