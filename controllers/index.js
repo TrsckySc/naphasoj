@@ -1,5 +1,5 @@
 const express = require('express');
-var fs = require('fs');
+var mail = require('./sendMail');
 
 const router = express.Router();
 
@@ -46,6 +46,15 @@ router.post('/api/add-interface', jsonParser, (req, res) => {
         res.send({
           success: true
         });
+      })
+
+      // 发送邮件通知
+      mail.send({
+        from: `JSHA-邮件小助手<${config.sendMailName}>`,
+        to: '1625125333@qq.com,iseebin@dingtalk.com',
+        subject: 'JSHA接口挡板工程 - 新接口通知',
+        text: `新增接口通知\n接口名称：${reqBody.name}\n接口地址：${reqBody.url} \n设计人员已将你添加为收件人，如果是你开发者，请及时关注接口状态。`,
+        // html: '<b>Hello world, I am a test mail!</b>'
       })
     }
   })
