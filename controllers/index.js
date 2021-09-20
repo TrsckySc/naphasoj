@@ -72,12 +72,30 @@ router.get('/api/get-interface-list', (req, res) => {
     param.url = { $regex: req.query.url }
   }
 
+  if (!req.query.page) req.query.page = 1;
+  if (!req.query.rows) req.query.rows = 5;
+
   TodoModal.find(param, (err, items) => {
     if (err) throw err;
-    res.send({
-      success: true,
-      data: items
-    })
+    var total = items.length;
+    var pages = Math.ceil(total / req.query.rows);
+    TodoModal.find(param)
+      .skip((req.query.page - 1) * req.query.rows)
+      .limit(req.query.rows)
+      .exec((err, items) => {
+        if (err) throw err;
+
+        res.send({
+          success: true,
+          data: {
+            pages: pages,
+            total: total,
+            page: req.query.page,
+            rows: req.query.rows,
+            list: items
+          }
+        })
+      });
   })
 });
 

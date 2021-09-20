@@ -61,7 +61,7 @@
           </div>
 
           <div class="col-auto">
-            <button type="button" class="btn btn-primary mb-2" onclick="searchlist()">查询</button>
+            <button type="button" class="btn btn-primary mb-2" onclick="searchlist(1)">查询</button>
           </div>
         </div>
       </form>
@@ -88,6 +88,7 @@
         </thead>
         <tbody id="table-tbody"></tbody>
       </table>
+      <div id="page"></div>
     </div>
   </div>
   <script id="list-template" type="text/x-handlebars-template">
@@ -122,6 +123,43 @@
     </td>
   </tr>
   {{/each}}
+  </script>
+  <!-- page -->
+  <script id="page-template" type="text/x-handlebars-template">
+  <nav aria-label="Page navigation example">
+    <ul class="pagination">
+      <li class="page-item">
+        <span class="page-link">{{pages}}页/{{total}}条</span>
+      </li>
+      <li class="page-item {{#compare page '==' 1}}disabled{{/compare}}">
+        <a class="page-link" href="javascript:;" onclick="searchlist('1')" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+          <span class="sr-only">Previous First</span>
+        </a>
+      </li>
+      <li class="page-item {{#compare page '==' 1}}disabled{{/compare}}">
+        <a class="page-link" href="javascript:;" onclick="searchlist('{{prevPage}}')" aria-label="Previous">
+          <span aria-hidden="true">&lsaquo;</span>
+          <span class="sr-only">Previous</span>
+        </a>
+      </li>
+      {{#each this.pageList}}
+      <li class="page-item {{#compare this '==' ../page}}active{{/compare}}"><a class="page-link" href="javascript:;" onclick="searchlist('{{this}}')">{{this}}</a></li>
+      {{/each}}
+      <li class="page-item {{#compare page '==' pages}}disabled{{/compare}}">
+        <a class="page-link" href="javascript:;" onclick="searchlist('{{nextPage}}')" aria-label="Next">
+          <span aria-hidden="true">&rsaquo;</span>
+          <span class="sr-only">Next</span>
+        </a>
+      </li>
+      <li class="page-item {{#compare page '==' pages}}disabled{{/compare}}">
+        <a class="page-link" href="javascript:;" onclick="searchlist('{{pages}}')" aria-label="Next">
+          <span aria-hidden="true">&raquo;</span>
+          <span class="sr-only">Next Last</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
   </script>
   <!-- Modal -->
   <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
@@ -239,6 +277,32 @@
         return '-';
       }
     })
+    var operators = {
+      '==': function (l, r) { return l == r; },
+      '===': function (l, r) { return l === r; },
+      '!=': function (l, r) { return l != r; },
+      '!==': function (l, r) { return l !== r; },
+      '<': function (l, r) { return l < r; },
+      '>': function (l, r) { return l > r; },
+      '<=': function (l, r) { return l <= r; },
+      '>=': function (l, r) { return l >= r; },
+      'typeof': function (l, r) { return typeof l == r; }
+    };
+    Handlebars.registerHelper('compare', function (left, operator, right, options) {
+      if (arguments.length < 3) {
+        throw new Error('Handlerbars Helper "compare" needs 2 parameters');
+      }
+      if (!operators[operator]) {
+        throw new Error('Handlerbars Helper "compare" doesn\'t know the operator ' + operator);
+      }
+      console.log(left, operator, right);
+      var result = operators[operator](left, right);
+      if (result) {
+        return options.fn(this);
+      } else {
+        return options.inverse(this);
+      }
+    });
 
     var editor = ace.edit("interface-data");
     editor.setTheme("ace/theme/chrome");//设置主题
@@ -416,9 +480,57 @@
       return true;
     }
 
+    // 处理分页
+    function formatPage(currentPage, pages) {
+      currentPage = currentPage * 1;
+      pages = pages * 1;
+      var prevPage, nextPage, pageList = [];
+      if (currentPage > 1) {
+        prevPage = currentPage - 1;
+      } else {
+        prevPage = 1;
+      }
+      if (currentPage < pages) {
+        nextPage = currentPage + 1;
+      } else {
+        nextPage = currentPage;
+      }
+      if (currentPage <= 4) {
+        for (var i = 1; i <= (pages < 7 ? pages : 7); i++) {
+          pageList.push(i);
+        }
+      } else if (currentPage > 4 && pages >= (currentPage + 3)) {
+        for (var i = (currentPage - 3); i <= (currentPage + 3); i++) {
+          pageList.push(i);
+        }
+      } else if (currentPage > 4 && pages == (currentPage + 2)) {
+        for (var i = (currentPage - 4); i <= pages; i++) {
+          pageList.push(i);
+        }
+      } else if (currentPage > 4 && pages == (currentPage + 1)) {
+        for (var i = ((currentPage - 5) < 1 ? 1 : (currentPage - 5)); i <= pages; i++) {
+          pageList.push(i);
+        }
+      } else if (currentPage > 4 && pages == currentPage) {
+        for (var i = ((currentPage - 6) < 1 ? 1 : (currentPage - 6)); i <= pages; i++) {
+          pageList.push(i);
+        }
+      }
+
+      return {
+        prevPage: prevPage,
+        nextPage: nextPage,
+        pageList: pageList,
+        page: currentPage,
+        pages: pages,
+      }
+    }
+
     // 查询列表数据
-    function searchlist() {
-      var param = {};
+    function searchlist(page) {
+      var param = {
+        page: page
+      };
       if ($('#search-name').val()) {
         param.name = $('#search-name').val();
       }
@@ -428,11 +540,17 @@
       $.get('/api/get-interface-list', param, function (data) {
         console.log(data);
         var html = Handlebars.compile($('#list-template').html());
-        $("#table-tbody").html(html(data.data));
+        $("#table-tbody").html(html(data.data.list));
+
+        // 处理分页数据
+        var pageData = formatPage(data.data.page, data.data.pages);
+        pageData.total = data.data.total;
+        var page = Handlebars.compile($('#page-template').html());
+        $("#page").html(page(pageData));
       })
     }
 
-    searchlist();
+    searchlist(1);
 
     // 打开新增弹出框
     function openAddModal() {
@@ -498,7 +616,7 @@
             $('#interface-name').val('');
             $('#interface-path').val('');
 
-            searchlist();
+            searchlist(1);
           } else {
             alert(data.errorMsg);
           }
@@ -603,7 +721,7 @@
             if (data.success) {
               alertInfo('删除成功');
 
-              searchlist();
+              searchlist(1);
             } else {
               alert(data.errorMsg, 'danger');
             }
@@ -642,7 +760,7 @@
             alert('更新成功');
             $('#exampleModal').modal('hide');
 
-            searchlist();
+            searchlist(1);
           } else {
             alert(data.errorMsg);
           }
