@@ -129,7 +129,18 @@
   <nav aria-label="Page navigation example">
     <ul class="pagination">
       <li class="page-item">
-        <span class="page-link">{{pages}}页/{{total}}条</span>
+        <span class="page-link">共{{pages}}页/{{total}}条</span>
+      </li>
+      <li class="page-item">
+        <a id="btnGroupDrop1" class="page-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" href="javascript:;">
+          每页<span id="rows">{{rows}}</span>条
+        </a>
+        <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+          <a class="dropdown-item" href="javascript:;" onclick="searchlist('1','5')">5条</a>
+          <a class="dropdown-item" href="javascript:;" onclick="searchlist('1','10')">10条</a>
+          <a class="dropdown-item" href="javascript:;" onclick="searchlist('1','20')">20条</a>
+          <a class="dropdown-item" href="javascript:;" onclick="searchlist('1','50')">50条</a>
+        </div>
       </li>
       <li class="page-item {{#compare page '==' 1}}disabled{{/compare}}">
         <a class="page-link" href="javascript:;" onclick="searchlist('1')" aria-label="Previous">
@@ -295,7 +306,6 @@
       if (!operators[operator]) {
         throw new Error('Handlerbars Helper "compare" doesn\'t know the operator ' + operator);
       }
-      console.log(left, operator, right);
       var result = operators[operator](left, right);
       if (result) {
         return options.fn(this);
@@ -527,9 +537,10 @@
     }
 
     // 查询列表数据
-    function searchlist(page) {
+    function searchlist(page, rows) {
       var param = {
-        page: page
+        page: page,
+        rows: rows ? rows : ($('#rows').length > 0 ? $('#rows').html() * 1 : 5)
       };
       if ($('#search-name').val()) {
         param.name = $('#search-name').val();
@@ -538,13 +549,13 @@
         param.url = $('#search-url').val();
       }
       $.get('/api/get-interface-list', param, function (data) {
-        console.log(data);
         var html = Handlebars.compile($('#list-template').html());
         $("#table-tbody").html(html(data.data.list));
 
         // 处理分页数据
         var pageData = formatPage(data.data.page, data.data.pages);
         pageData.total = data.data.total;
+        pageData.rows = data.data.rows;
         var page = Handlebars.compile($('#page-template').html());
         $("#page").html(page(pageData));
       })
