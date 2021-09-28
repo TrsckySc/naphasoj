@@ -622,7 +622,7 @@
         contentType: "application/json",
         success: function (data) {
           if (data.success) {
-            alert('保存成功');
+            alertInfo('保存成功', 'success');
             $('#exampleModal').modal('hide');
             $('#interface-name').val('');
             $('#interface-path').val('');
@@ -768,7 +768,7 @@
         contentType: "application/json",
         success: function (data) {
           if (data.success) {
-            alert('更新成功');
+            alertInfo('更新成功', 'success');
             $('#exampleModal').modal('hide');
 
             searchlist(1);
