@@ -81,7 +81,7 @@ router.get('/api/get-interface-list', (req, res) => {
     var pages = Math.ceil(total / req.query.rows);
     TodoModal.find(param)
       .skip((req.query.page - 1) * req.query.rows)
-      .limit(req.query.rows)
+      .limit(req.query.rows * 1)
       .exec((err, items) => {
         if (err) throw err;
 
