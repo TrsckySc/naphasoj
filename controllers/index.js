@@ -7,9 +7,9 @@ var mongoose = require('mongoose');
 
 var bodyParser = require('body-parser');
 // create application/json parser
-var jsonParser = bodyParser.json()
+var jsonParser = bodyParser.json({ limit: '50mb' });
 // create application/x-www-form-urlencoded parser
-var urlencodedParser = bodyParser.urlencoded({ extended: false })
+var urlencodedParser = bodyParser.urlencoded({ limit: '50mb', extended: true });
 
 var config = require('../config');
 
