@@ -211,6 +211,18 @@
                       onclick="selectedDropdown(this)">/ylh-cloud-service-user-dev</a>
                     <a class="dropdown-item" href="#" data-value="/ylh-cloud-service-goods-dev"
                       onclick="selectedDropdown(this)">/ylh-cloud-service-goods-dev</a>
+                    <a class="dropdown-item" href="#" data-value="/ylh-cloud-service-order-dev"
+                      onclick="selectedDropdown(this)">/ylh-cloud-service-order-dev</a>
+                    <a class="dropdown-item" href="#" data-value="/ylh-cloud-service-base-dev"
+                      onclick="selectedDropdown(this)">/ylh-cloud-service-base-dev</a>
+                    <a class="dropdown-item" href="#" data-value="/ylh-cloud-service-price-dev"
+                      onclick="selectedDropdown(this)">/ylh-cloud-service-price-dev</a>
+                    <a class="dropdown-item" href="#" data-value="/ylh-cloud-service-fund-dev"
+                      onclick="selectedDropdown(this)">/ylh-cloud-service-fund-dev</a>
+                    <a class="dropdown-item" href="#" data-value="/ylh-cloud-service-notice-dev"
+                      onclick="selectedDropdown(this)">/ylh-cloud-service-notice-dev</a>
+                    <a class="dropdown-item" href="#" data-value="/ylh-cloud-service-exchange-dev"
+                      onclick="selectedDropdown(this)">/ylh-cloud-service-exchange-dev</a>
                   </div>
                 </div>
                 <input type="text" class="form-control" id="interface-path" placeholder="请输入接口地址 例如:/api/xxx"
@@ -540,7 +552,7 @@
     function searchlist(page, rows) {
       var param = {
         page: page,
-        rows: rows ? rows : ($('#rows').length > 0 ? $('#rows').html() * 1 : 5)
+        rows: rows ? rows : ($('#rows').length > 0 ? $('#rows').html() * 1 : 20)
       };
       if ($('#search-name').val()) {
         param.name = $('#search-name').val();
