@@ -5,9 +5,9 @@ module.exports = {
   target: 'http://12.168.3.15:80',
 
   // mongodb链接地址-docker版
-  // mongodb: 'mongodb://database/myapp',
+  mongodb: 'mongodb://database/myapp',
   // mongodb链接地址-本地版
-  mongodb: 'mongodb://localhost/myapp',
+  // mongodb: 'mongodb://localhost/myapp',
   
   // 是否开启邮件通知
   isSendMail: false,

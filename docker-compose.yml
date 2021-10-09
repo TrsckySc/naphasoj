@@ -6,8 +6,8 @@ services:
     image: mongo
     restart: always
     # 卷
-    volumes:
-      - /data/db:/data/db
+    #volumes:
+    #  - /data/db:/data/db
     networks:
       - webapp-network
   web:
