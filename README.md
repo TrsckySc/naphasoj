@@ -18,19 +18,18 @@ jquery、bootstrap、json5、ace、mockjs
 2. `git clone https://gitee.com/seebin/mock-data.git`
 3. `cd mock-data`
 4. `npm install`
-5. `npm start`
-6. 浏览器访问`http://localhost:3004/mock`
+5. 修改config.js文件里面的mongodb数据库链接地址，解开本地版链接地址  注释docker版链接地址
+6. `npm start`
+7. 浏览器访问`http://localhost:3004/mock`
 
-#### 安装教程-Docker版(docker内部自动安装mongodb数据库)
+#### 安装教程-Docker版(docker内部自动安装mongodb数据库)-默认
 
 > 前提需要本地安装docker以及compose
 
 1. `git clone https://gitee.com/seebin/mock-data.git`
 2. `cd mock-data`
 3. `npm install`
-4. 修改config.js文件里面的mongodb数据库链接地址，解开docker版链接地址  注释本地版链接地址
-5. 修改docker-compose.yml 文件的volumes的配置 改为自己的项目目录地址
-6. 执行以下命令:`docker-compose up -d`
+4. 执行以下命令:`docker-compose up -d`
 
 #### 使用说明
 

@@ -15,7 +15,7 @@ services:
     build: ./
     # image: mock-data
     volumes:
-      - /home/seebin/web-project/mock-data:/app
+      - ./:/app
     depends_on:
       - database
     ports:
