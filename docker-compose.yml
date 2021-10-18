@@ -23,6 +23,7 @@ services:
       - 3004:3004
     networks:
       - webapp-network
+    command: ["./wait-for-it.sh", "database:27017", "--strict", "--", "npm", "run", "start"]
 networks:
   webapp-network:
     driver: bridge
