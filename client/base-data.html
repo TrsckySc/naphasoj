@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>基础数据维护 - YSHA</title>
+  <title>基础数据维护 - SNAKE-API</title>
   <link href="./lib/bootstrap.min.css" rel="stylesheet">
   <style>
     #base-data,
@@ -26,7 +26,7 @@
   <!-- nav -->
   <div>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand" href="/">YSHA</a>
+      <a class="navbar-brand" href="/mock">SNAKE-API <small>Mini</small></a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
         aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -35,9 +35,7 @@
         <div class="navbar-nav">
           <a class="nav-item nav-link" href="/mock">接口列表 <span class="sr-only">(current)</span></a>
           <a class="nav-item nav-link active" href="/mock/base-data.html">基础数据维护</a>
-          <a class="nav-item nav-link" href="#">接口前缀维护</a>
-          <a class="nav-item nav-link" href="#">需求模块维护</a>
-          <a class="nav-item nav-link" href="#">数据扩展维护</a>
+          <a class="nav-item nav-link" href="/mock/prefix.html">接口前缀维护</a>
         </div>
       </div>
     </nav>
@@ -225,7 +223,7 @@
           if (data.success) {
             alertInfo('保存成功');
           } else {
-            alert(data.errorMsg);
+            alertInfo(data.errorMsg, 'danger');
           }
         }
       })
@@ -257,7 +255,7 @@
           if (data.success) {
             alertInfo('保存成功');
           } else {
-            alert(data.errorMsg);
+            alertInfo(data.errorMsg, 'danger');
           }
         }
       })

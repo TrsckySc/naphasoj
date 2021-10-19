@@ -15,6 +15,7 @@ var config = require('../config');
 
 var TodoModal = require('./modal');
 var BaseDataModal = require('./baseDataModal');
+var prefixModal = require('./prefixModal');
 
 mongoose.connect(config.mongodb, { useNewUrlParser: true });
 var db = mongoose.connection;
@@ -108,6 +109,16 @@ router.post('/api/delete-interface', jsonParser, (req, res) => {
     })
   }
   TodoModal.deleteOne({ _id: req.body.id }, (err) => {
+    if (err) throw err;
+    res.send({
+      success: true
+    })
+  })
+});
+
+// 清空接口
+router.get('/api/delete-all-interface', jsonParser, (req, res) => {
+  TodoModal.remove({}, (err) => {
     if (err) throw err;
     res.send({
       success: true
@@ -235,6 +246,60 @@ router.post('/api/get-base-data-by-id', jsonParser, (req, res) => {
     res.send({
       success: true,
       data: item
+    })
+  })
+});
+
+// 查询前缀数据
+router.get('/api/get-prefix-list', (req, res) => {
+  prefixModal.find({}, (err, items) => {
+    if (err) throw err;
+    res.send({
+      success: true,
+      data: items
+    })
+  })
+})
+
+// 新增前缀数据保存
+router.post('/api/add-prefix', jsonParser, (req, res) => {
+  let reqBody = req.body;
+
+  // 保证url唯一性
+  prefixModal.find({ code: reqBody.code }, (err, item) => {
+    if (err) throw err;
+    if (JSON.stringify(item) !== "[]") {
+      res.send({
+        success: false,
+        errorMsg: "已经存在的前缀",
+        data: {}
+      })
+    } else {
+      // 存入数据库
+      var prefixObj = new prefixModal(reqBody);
+
+      prefixObj.save((err, todo) => {
+        if (err) throw err;
+        res.send({
+          success: true
+        });
+      })
+    }
+  })
+});
+
+// 删除前缀数据
+router.post('/api/delete-prefix', jsonParser, (req, res) => {
+  if (!req.body || !req.body.code) {
+    res.send({
+      success: false,
+      errorMsg: "缺少前缀code"
+    })
+  }
+  prefixModal.deleteOne({ code: req.body.code }, (err) => {
+    if (err) throw err;
+    res.send({
+      success: true
     })
   })
 });

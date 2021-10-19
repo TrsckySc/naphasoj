@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>接口列表 - YSHA</title>
+  <title>接口列表 - SNAKE-API</title>
   <link href="./lib/bootstrap.min.css" rel="stylesheet">
   <style>
     #interface-data {
@@ -29,7 +29,7 @@
   <!-- nav -->
   <div>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand" href="/">YSHA</a>
+      <a class="navbar-brand" href="/mock">SNAKE-API <small>Mini</small></a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
         aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -38,9 +38,7 @@
         <div class="navbar-nav">
           <a class="nav-item nav-link active" href="/mock">接口列表 <span class="sr-only">(current)</span></a>
           <a class="nav-item nav-link" href="/mock/base-data.html">基础数据维护</a>
-          <a class="nav-item nav-link" href="#">接口前缀维护</a>
-          <a class="nav-item nav-link" href="#">需求模块维护</a>
-          <a class="nav-item nav-link" href="#">数据扩展维护</a>
+          <a class="nav-item nav-link" href="/mock/prefix.html">接口前缀维护</a>
         </div>
       </div>
     </nav>
@@ -70,6 +68,9 @@
     <div class="pt-3 pb-3">
       <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal"
         onclick="openAddModal()">新增接口
+      </button>
+      <button type="button" class="btn btn-outline-danger float-right" onclick="removeInterface()">
+        清空接口
       </button>
     </div>
     <!-- table -->
@@ -205,26 +206,8 @@
                   <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
                     aria-haspopup="true" aria-expanded="false" style="width:254px;" data-value=""
                     id="interface-prefix">无接口前缀</button>
-                  <div class="dropdown-menu">
+                  <div class="dropdown-menu" id="interface-prefix-list">
                     <a class="dropdown-item" href="#" data-value="" onclick="selectedDropdown(this)">无接口前缀</a>
-                    <a class="dropdown-item" href="#" data-value="/ylh-cloud-service-user-dev"
-                      onclick="selectedDropdown(this)">/ylh-cloud-service-user-dev</a>
-                    <a class="dropdown-item" href="#" data-value="/ylh-cloud-service-goods-dev"
-                      onclick="selectedDropdown(this)">/ylh-cloud-service-goods-dev</a>
-                    <a class="dropdown-item" href="#" data-value="/ylh-cloud-service-order-dev"
-                      onclick="selectedDropdown(this)">/ylh-cloud-service-order-dev</a>
-                    <a class="dropdown-item" href="#" data-value="/ylh-cloud-service-base-dev"
-                      onclick="selectedDropdown(this)">/ylh-cloud-service-base-dev</a>
-                    <a class="dropdown-item" href="#" data-value="/ylh-cloud-service-price-dev"
-                      onclick="selectedDropdown(this)">/ylh-cloud-service-price-dev</a>
-                    <a class="dropdown-item" href="#" data-value="/ylh-cloud-service-fund-dev"
-                      onclick="selectedDropdown(this)">/ylh-cloud-service-fund-dev</a>
-                    <a class="dropdown-item" href="#" data-value="/ylh-cloud-service-notice-dev"
-                      onclick="selectedDropdown(this)">/ylh-cloud-service-notice-dev</a>
-                    <a class="dropdown-item" href="#" data-value="/ylh-cloud-service-exchange-dev"
-                      onclick="selectedDropdown(this)">/ylh-cloud-service-exchange-dev</a>
-                    <a class="dropdown-item" href="#" data-value="/ylh-cloud-service-stock-dev"
-                      onclick="selectedDropdown(this)">/ylh-cloud-service-stock-dev</a>
                   </div>
                 </div>
                 <input type="text" class="form-control" id="interface-path" placeholder="请输入接口地址 例如:/api/xxx"
@@ -283,6 +266,16 @@
 
   <script src="./lib/mock/mock-min.js"></script>
   <script>
+    $.get('/api/get-prefix-list', function (data) {
+      if (data.success) {
+        var str = '';
+        data.data.forEach(function (prefix) {
+          str += '<a class="dropdown-item" href="#" data-value="'+prefix.code+'" onclick="selectedDropdown(this)">'+prefix.code+'</a>'
+        })
+        $('#interface-prefix-list').append(str);
+      }
+    })
+
     var Random = Mock.Random;
 
     Handlebars.registerHelper('formatMethod', (value) => {
@@ -604,6 +597,21 @@
       editor.setReadOnly(false);//设置编辑器取消只读
     }
 
+    // 清空接口
+    function removeInterface(){
+      var emp = window.confirm('是否清空接口?');
+      if (emp) {
+        $.get('/api/delete-all-interface', function(data){
+          if (data.success) {
+            searchlist(1);
+            alertInfo('清空成功', 'success');
+          } else {
+            alertInfo(data.errorMsg, 'danger');
+          }
+        })
+      }
+    }
+
     // 新增保存接口
     function saveInterface() {
 
@@ -643,7 +651,7 @@
 
             searchlist(1);
           } else {
-            alert(data.errorMsg);
+            alertInfo(data.errorMsg, 'danger');
           }
         }
       })
@@ -683,7 +691,7 @@
             $('#interface-name').prop('disabled', true);
             $('#interface-path').prop('disabled', true);
           } else {
-            alert(data.errorMsg);
+            alertInfo(data.errorMsg, 'danger');
           }
         }
       })
@@ -723,7 +731,7 @@
             editor.setValue(JSON5.parse(data.data.sourceData));
             editor.setReadOnly(false);
           } else {
-            alert(data.errorMsg);
+            alertInfo(data.errorMsg, 'danger');
           }
         }
       })
@@ -748,7 +756,7 @@
 
               searchlist(1);
             } else {
-              alert(data.errorMsg, 'danger');
+              alertInfo(data.errorMsg, 'danger');
             }
           }
         })
@@ -787,7 +795,7 @@
 
             searchlist(1);
           } else {
-            alert(data.errorMsg);
+            alertInfo(data.errorMsg, 'danger');
           }
         }
       })
@@ -830,7 +838,7 @@
           if (data.success) {
             editor.setValue(JSON.stringify(data.data.data, null, 2));
           } else {
-            alert(data.errorMsg);
+            alertInfo(data.errorMsg, 'danger');
           }
         }
       })

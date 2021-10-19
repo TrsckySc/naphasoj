@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>接口前缀维护 - SNAKE-API</title>
+  <link href="./lib/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+  <!-- nav -->
+  <div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="/mock">SNAKE-API <small>Mini</small></a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+        aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+          <a class="nav-item nav-link" href="/mock">接口列表</a>
+          <a class="nav-item nav-link" href="/mock/base-data.html">基础数据维护</a>
+          <a class="nav-item nav-link active" href="/mock/prefix.html">接口前缀维护</a>
+        </div>
+      </div>
+    </nav>
+  </div>
+
+  <div class="p-3">
+    <!-- add -->
+    <div class="pt-3 pb-3">
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal"
+        onclick="openAddModal()">新增前缀
+      </button>
+    </div>
+    <!-- table -->
+    <div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col" width="5%" class="text-center">序号</th>
+            <th scope="col" width="40" class="text-center">前缀</th>
+            <th scope="col" width="40%" class="text-center">备注</th>
+            <th scope="col" width="15%" class="text-center">操作</th>
+          </tr>
+        </thead>
+        <tbody id="table-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+  <script id="list-template" type="text/x-handlebars-template">
+  {{#each this}}
+  <tr>
+    <th scope="row" class="text-center">{{addOne @index}}</th>
+    <td class="text-center">{{code}}</td>
+    <td class="text-center">{{remark}}</td>
+    <td class="text-center">
+      <button type="button" class="btn btn-warning btn-sm" onclick="deletePrefix('{{code}}')">删除</button>
+    </td>
+  </tr>
+  {{/each}}
+  </script>
+  <!-- Modal -->
+  <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-sm" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">新增前缀</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group">
+              <label for="prefix-code">前缀</label>
+              <input type="email" class="form-control" id="prefix-code" placeholder="请输入前缀">
+            </div>
+            <div class="form-group">
+              <label for="prefix-remark">备注</label>
+              <input type="email" class="form-control" id="prefix-remark" placeholder="请输入备注">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+          <button type="button" class="btn btn-primary" onclick="savePrefix()" id="save-btn">保存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- alert info -->
+  <div id="alert" class="alert alert-success position-fixed w-50" role="alert"
+    style="display: none;top:40px;left:50%;margin-left:-25%;z-index:9999999999"></div>
+
+  <script src="./lib/jquery.min.js"></script>
+  <script src="./lib/popper.min.js"></script>
+  <script src="./lib/handlebars.min.js"></script>
+  <script src="./lib/bootstrap.min.js"></script>
+
+  <script>
+
+    Handlebars.registerHelper('addOne', (value) => {
+      return value + 1;
+    })
+
+    function openAddModal(){
+      // 清空原有数据
+      $('#prefix-remark').val('');
+      $('#prefix-code').val('');
+    }
+
+    // 封装alert
+    function alertInfo(content, type) {
+      $('#alert').text(content);
+      var alertEle = document.getElementById('alert');
+      alertEle.className = 'alert position-fixed w-50' + ' alert-' + (type || 'success');
+      $('#alert').fadeIn('fast');
+
+      setTimeout(() => {
+        $('#alert').fadeOut('slow');
+      }, 2500);
+    }
+
+    // 查询列表数据
+    function searchList() {
+      $.get('/api/get-prefix-list', function (data) {
+        var html = Handlebars.compile($('#list-template').html());
+        $("#table-tbody").html(html(data.data));
+      })
+    }
+
+    searchList();
+
+    function checkForm() {
+      if (!$('#prefix-code').val()) {
+        alertInfo('请输入前缀', 'warning');
+        return false;
+      }
+      return true;
+    }
+    function savePrefix(){
+      if (!checkForm()) return;
+
+      var param = {
+        remark: $('#prefix-remark').val(),
+        code: $('#prefix-code').val().startsWith('/') ? $('#prefix-code').val() : ('/' + $('#prefix-code').val()),
+      };
+
+      $.ajax({
+        url: '/api/add-prefix',
+        method: 'post',
+        dataType: "json",
+        data: JSON.stringify(param),
+        contentType: "application/json",
+        success: function (data) {
+          if (data.success) {
+            alertInfo('保存成功', 'success');
+            $('#exampleModal').modal('hide');
+
+            searchList(1);
+          } else {
+            alertInfo(data.errorMsg, 'danger');
+          }
+        }
+      })
+    }
+
+    // 删除接口
+    function deletePrefix(code) {
+      var emp = confirm('是否删除该接口？');
+      if (emp != 0) {
+        // 调删除接口
+        $.ajax({
+          url: '/api/delete-prefix',
+          method: 'post',
+          dataType: "json",
+          data: JSON.stringify({
+            code: code
+          }),
+          contentType: "application/json",
+          success: function (data) {
+            if (data.success) {
+              alertInfo('删除成功');
+
+              searchList();
+            } else {
+              alertInfo(data.errorMsg, 'danger');
+            }
+          }
+        })
+      }
+    }
+  </script>
+</body>
+
+</html>
