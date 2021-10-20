@@ -24,6 +24,18 @@ db.once('open', function () {
   // console.log('mongodb is connected.')
 });
 
+// 新增批量保存接口
+router.post('/api/import-interface', jsonParser, (req, res) => {
+  let reqBody = req.body;
+  TodoModal.insertMany(reqBody, (err, items) => {
+    if (err) throw err;
+    res.send({
+      success: true,
+      errorMsg: "",
+    })
+  })
+})
+
 // 新增保存接口
 router.post('/api/add-interface', jsonParser, (req, res) => {
   let reqBody = req.body;

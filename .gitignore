@@ -82,3 +82,7 @@ typings/
 # idea
 .idea/
 
+# vscode
+.vscode
+.history
+
