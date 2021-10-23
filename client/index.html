@@ -47,7 +47,7 @@
   <div class="p-3">
     <!-- 筛选 -->
     <div>
-      <form>
+      <form onsubmit="searchlist(1);return false;">
         <div class="form-row align-items-center">
           <div class="col-auto">
             <label class="sr-only" for="search-name">接口名称</label>
@@ -59,7 +59,7 @@
           </div>
 
           <div class="col-auto">
-            <button type="button" class="btn btn-primary mb-2" onclick="searchlist(1)">查询</button>
+            <button type="submit" class="btn btn-primary mb-2">查询</button>
           </div>
         </div>
       </form>
@@ -86,9 +86,9 @@
             <th scope="col" width="10">接口名称</th>
             <th scope="col" width="8%" class="text-center">接口类型</th>
             <th scope="col" width="20%">接口前缀</th>
-            <th scope="col" width="30%">接口地址</th>
+            <th scope="col" width="25%">接口地址</th>
             <th scope="col" width="12%" class="text-center">Mock启用状态</th>
-            <th scope="col" width="15%" class="text-center">操作</th>
+            <th scope="col" width="20%" class="text-center">操作</th>
           </tr>
         </thead>
         <tbody id="table-tbody"></tbody>
@@ -105,7 +105,15 @@
       <button type="button" class="btn {{formatMethod method}} btn-sm" style="width:56px;">{{method}}</button>
     </td>
     <td>{{noValue prefix}}</td>
-    <td>{{path}}</td>
+    <td>
+      <span style="cursor: pointer;" onclick="copyPath('{{path}}')">
+        <svg class="bi bi-documents" width="1.2em" height="1.2em" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd" d="M5 4h8a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2zm0 1a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V6a1 1 0 00-1-1H5z" clip-rule="evenodd"></path>
+          <path d="M7 2h8a2 2 0 012 2v10a2 2 0 01-2 2v-1a1 1 0 001-1V4a1 1 0 00-1-1H7a1 1 0 00-1 1H5a2 2 0 012-2z"></path>
+        </svg>
+      </span>
+      {{path}}
+    </td>
     <td class="text-center">
       <div class="dropdown">
         <button class="btn {{#if isOpen}}btn-outline-success{{else}}btn-outline-danger{{/if}} dropdown-toggle btn-sm"
@@ -122,9 +130,39 @@
       </div>
     </td>
     <td class="text-center">
-      <button type="button" class="btn btn-primary btn-sm" onclick="getInterface('{{_id}}')">查看</button>
-      <button type="button" class="btn btn-info btn-sm" onclick="editInterface('{{_id}}')">编辑</button>
-      <button type="button" class="btn btn-warning btn-sm" onclick="deleteInterface('{{_id}}')">删除</button>
+      <button
+        type="button"
+        class="btn btn-light btn-sm {{#if isLock}}{{else}}d-none{{/if}}"
+        onclick="changeLockStatus(this, '{{_id}}', false)"
+      >
+      <svg class="bi bi-lock" width="1.5em" height="1.5em" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" d="M13.655 9H6.333c-.264 0-.398.068-.471.121a.73.73 0 00-.224.296 1.626 1.626 0 00-.138.59V15c0 .342.076.531.14.635.064.106.151.18.256.237a1.122 1.122 0 00.436.127l.013.001h7.322c.264 0 .398-.068.471-.121a.73.73 0 00.224-.296 1.627 1.627 0 00.138-.59V10c0-.342-.076-.531-.14-.635a.658.658 0 00-.255-.237 1.123 1.123 0 00-.45-.128zm.012-1H6.333C4.5 8 4.5 10 4.5 10v5c0 2 1.833 2 1.833 2h7.334c1.833 0 1.833-2 1.833-2v-5c0-2-1.833-2-1.833-2zM6.5 5a3.5 3.5 0 117 0v3h-1V5a2.5 2.5 0 00-5 0v3h-1V5z" clip-rule="evenodd"></path>
+      </svg>
+      </button>
+      <button 
+        type="button" 
+        class="btn btn-light btn-sm {{#if isLock}}d-none{{/if}}" 
+        onclick="changeLockStatus(this, '{{_id}}', true)"
+      >
+      <svg class="bi bi-unlock" width="1.5em" height="1.5em" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" d="M11.655 9H4.333c-.264 0-.398.068-.471.121a.73.73 0 00-.224.296 1.626 1.626 0 00-.138.59V15c0 .342.076.531.14.635.064.106.151.18.256.237a1.122 1.122 0 00.436.127l.013.001h7.322c.264 0 .398-.068.471-.121a.73.73 0 00.224-.296 1.627 1.627 0 00.138-.59V10c0-.342-.076-.531-.14-.635a.658.658 0 00-.255-.237 1.123 1.123 0 00-.45-.128zm.012-1H4.333C2.5 8 2.5 10 2.5 10v5c0 2 1.833 2 1.833 2h7.334c1.833 0 1.833-2 1.833-2v-5c0-2-1.833-2-1.833-2zM10.5 5a3.5 3.5 0 117 0v3h-1V5a2.5 2.5 0 00-5 0v3h-1V5z" clip-rule="evenodd"></path>
+      </svg>
+      </button>
+      <button 
+        type="button"
+        class="btn btn-primary btn-sm {{#if isLock}}d-none{{/if}}"
+        onclick="getInterface('{{_id}}')"
+      >查看</button>
+      <button 
+        type="button" 
+        class="btn btn-info btn-sm {{#if isLock}}d-none{{/if}}" 
+        onclick="editInterface('{{_id}}')"
+      >编辑</button>
+      <button
+        type="button" 
+        class="btn btn-warning btn-sm {{#if isLock}}d-none{{/if}}" 
+        onclick="deleteInterface('{{_id}}')"
+      >删除</button>
     </td>
   </tr>
   {{/each}}
@@ -246,6 +284,8 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
           <button type="button" class="btn btn-primary" onclick="saveInterface()" id="save-btn">保存</button>
+          <button type="button" class="btn btn-primary" onclick="updateInterface()" id="update-btn">更新
+          </button>
         </div>
       </div>
     </div>
@@ -288,7 +328,10 @@
   </div>
 
   <script id="swagger-path-template" type="text/x-handlebars-template">
-    <button type="button" class="btn btn-link" data-toggle="collapse" data-target=".tagName-collapse" aria-expanded="false">一键展开收起</button>
+    <div>
+      <button type="button" class="btn btn-link" data-toggle="collapse" data-target=".tagName-collapse" aria-expanded="false">一键展开收起</button>
+      <span class="float-right text-secondary" style="line-height: 38px;">注：现有接口不会被覆盖导入</span>
+    </div>
     {{#each this}}
     <div class="card">
       <!-- tag -->

@@ -27,11 +27,28 @@ db.once('open', function () {
 // 新增批量保存接口
 router.post('/api/import-interface', jsonParser, (req, res) => {
   let reqBody = req.body;
-  TodoModal.insertMany(reqBody, (err, items) => {
+  const param = [];
+  // 去重
+  TodoModal.find({}, (err, items) => {
     if (err) throw err;
-    res.send({
-      success: true,
-      errorMsg: "",
+    reqBody.forEach(data => {
+      data.url = data.prefix + data.path;
+      data.isLock = false;
+      let emp = false;
+      items.forEach(item => {
+        if (item.url === data.url) {
+          emp = true;
+        }
+      })
+      if (!emp) param.push(data);
+    })
+
+    TodoModal.insertMany(param, (err, items) => {
+      if (err) throw err;
+      res.send({
+        success: true,
+        errorMsg: "",
+      })
     })
   })
 })
@@ -40,6 +57,7 @@ router.post('/api/import-interface', jsonParser, (req, res) => {
 router.post('/api/add-interface', jsonParser, (req, res) => {
   let reqBody = req.body;
   reqBody.url = reqBody.prefix + reqBody.path;
+  reqBody.isLock = false;
 
   // 保证url唯一性
   TodoModal.find({ url: reqBody.url }, (err, item) => {
@@ -130,7 +148,7 @@ router.post('/api/delete-interface', jsonParser, (req, res) => {
 
 // 清空接口
 router.get('/api/delete-all-interface', jsonParser, (req, res) => {
-  TodoModal.remove({}, (err) => {
+  TodoModal.deleteMany({ isLock: false }, (err) => {
     if (err) throw err;
     res.send({
       success: true
@@ -194,6 +212,32 @@ router.post('/api/change-interface-mock-status', jsonParser, (req, res) => {
   TodoModal.findById(req.body.id, (err, item) => {
     if (err) throw err;
     item.isOpen = req.body.isOpen;
+    item.save((err) => {
+      if (err) throw err;
+      res.send({
+        success: true
+      })
+    })
+  })
+});
+
+// 修改接口锁状态
+router.post('/api/change-interface-lock-status', jsonParser, (req, res) => {
+  if (!req.body || !req.body.id) {
+    res.send({
+      success: false,
+      errorMsg: "缺少接口id"
+    })
+  }
+  if (req.body.isLock === undefined || req.body.isLock === null || typeof req.body.isLock !== 'boolean') {
+    res.send({
+      success: false,
+      errorMsg: "参数isLock未传或数据类型错误 应为boolean类型"
+    })
+  }
+  TodoModal.findById(req.body.id, (err, item) => {
+    if (err) throw err;
+    item.isLock = req.body.isLock;
     item.save((err) => {
       if (err) throw err;
       res.send({
