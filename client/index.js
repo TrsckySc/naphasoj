@@ -193,14 +193,12 @@ function changeLockStatus(owner, id, value) {
           alertInfo('已锁');
           $(owner).prev().removeClass('d-none');
           $(owner).addClass('d-none');
-          $(owner).next().addClass('d-none');
           $(owner).next().next().addClass('d-none');
           $(owner).next().next().next().addClass('d-none');
         } else {
           alertInfo('已解锁');
           $(owner).addClass('d-none');
           $(owner).next().removeClass('d-none');
-          $(owner).next().next().removeClass('d-none');
           $(owner).next().next().next().removeClass('d-none');
           $(owner).next().next().next().next().removeClass('d-none');
         }
