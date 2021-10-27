@@ -12,7 +12,16 @@ nodejs、mongodb、express
 前端技术栈
 jquery、bootstrap、json5、ace、mockjs
 
-#### 安装教程-本地版(需要自己本地安装mongodb数据库)
+#### 使用教程-Docker版(docker内部自动安装mongodb数据库)-默认方式
+
+> 前提需要本地安装docker以及compose
+
+1. `git clone https://gitee.com/seebin/mock-data.git`
+2. `cd mock-data`
+3. `npm install`
+4. 执行以下命令:`docker-compose up -d`
+
+#### 使用教程-本地版(需要自己本地安装mongodb数据库)
 
 1. 先下载安装mongodb, [MongoDB官网下载链接](https://www.mongodb.com/download-center/community)
 2. `git clone https://gitee.com/seebin/mock-data.git`
@@ -21,15 +30,6 @@ jquery、bootstrap、json5、ace、mockjs
 5. 修改config.js文件里面的mongodb数据库链接地址，解开本地版链接地址  注释docker版链接地址
 6. `npm start`
 7. 浏览器访问`http://localhost:3004/mock`
-
-#### 安装教程-Docker版(docker内部自动安装mongodb数据库)-默认
-
-> 前提需要本地安装docker以及compose
-
-1. `git clone https://gitee.com/seebin/mock-data.git`
-2. `cd mock-data`
-3. `npm install`
-4. 执行以下命令:`docker-compose up -d`
 
 #### 使用说明
 
@@ -58,4 +58,6 @@ jquery、bootstrap、json5、ace、mockjs
 
 #### 相关链接
 
-[Mac电脑安装mongodb教程](http://note.youdao.com/noteshare?id=ff4b17665bdab2022c67571b716c5be3)
+[Mac电脑本地安装MongoDB服务教程](http://note.youdao.com/noteshare?id=ff4b17665bdab2022c67571b716c5be3)
+
+[Window电脑本地安装MongoDB服务教程](http://note.youdao.com/noteshare?id=ae30a3d8b9ad2b8fdd81f2ae39834490)
