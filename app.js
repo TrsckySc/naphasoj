@@ -47,7 +47,9 @@ app.use((req, res, next) => {
     if (err) throw err;
     // 查询到数据并且开启了mock状态，则返回mock数据
     if (JSON.stringify(item) !== "[]" && item[0].isOpen) {
-      res.send(item[0].data);
+      setTimeout(()=>{
+        res.send(item[0].data);
+      }, config.delay)
       return;
     }
     // 否则做代理转发

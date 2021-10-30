@@ -111,6 +111,7 @@ router.get('/api/get-interface-list', (req, res) => {
     var total = items.length;
     var pages = Math.ceil(total / req.query.rows);
     TodoModal.find(param)
+      .sort({'_id':-1}) // 1 为生序  -1为降序
       .skip((req.query.page - 1) * req.query.rows)
       .limit(req.query.rows * 1)
       .exec((err, items) => {
