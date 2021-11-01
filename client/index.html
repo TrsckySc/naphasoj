@@ -15,7 +15,7 @@
     #interface-data {
       position: relative;
       width: 100%;
-      height: 300px;
+      min-height: 140px;
     }
 
     #preview {
@@ -289,6 +289,7 @@
           </form>
         </div>
         <div class="modal-footer">
+          <span class="text-secondary flex-grow-1" style="font-size: 14px;">提示:编辑器内使用快捷键 <kbd>Ctrl+Enter</kbd>或<kbd>Command+Enter</kbd> 可切换全屏状态</span>
           <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
           <button type="button" class="btn btn-primary" onclick="saveInterface()" id="save-btn">保存</button>
           <button type="button" class="btn btn-primary" onclick="updateInterface()" id="update-btn">更新

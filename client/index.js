@@ -389,6 +389,8 @@ function openAddModal() {
 
   editor.setValue('');
   editor.setReadOnly(false);//设置编辑器取消只读
+
+  $('#interface-data').css('height', window.outerHeight / 5 + 'px');
 }
 
 // 打开导入swagger接口弹出框
