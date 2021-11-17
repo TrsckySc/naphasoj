@@ -29,7 +29,7 @@
   "devDependencies": {
     "@commitlint/cli": "^8.3.5",
     "@commitlint/config-conventional": "^8.3.4",
-    "husky": "^4.2.3",
+    "husky": "^2.4.1",
     "nodemon": "^1.18.11",
     "standard-version": "^7.1.0"
   }
