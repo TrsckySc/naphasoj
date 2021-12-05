@@ -63,6 +63,6 @@ app.use(function (req, res) {
   return;
 })
 
-app.listen(3004, () => {
-  console.log('service is started. listen to 3004 port. open the following address in the browser.\n  http://127.0.0.1:3004/mock');
+app.listen(config.port, () => {
+  console.log(`service is started. listen to ${config.port} port. open the following address in the browser.\n  http://127.0.0.1:${config.port}/mock`);
 });

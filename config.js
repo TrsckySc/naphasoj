@@ -2,7 +2,7 @@ module.exports = {
   // dev4测试环境代理转发地址
   // target: 'http://dev4.ylhtest.com',
   // dev测试环境代理转发地址
-  target: 'http://12.168.3.15:80',
+  target: 'http://dev.ylhtest.com',
 
   // mock接口响应延时  ms单位
   delay: 200,
@@ -12,6 +12,9 @@ module.exports = {
   // mongodb链接地址-本地版
   // mongodb: 'mongodb://localhost/myapp',
   
+  // mock工程端口设置
+  port: 3004,
+
   // 是否开启邮件通知
   isSendMail: false,
   // 邮箱SMTP服务器地址
