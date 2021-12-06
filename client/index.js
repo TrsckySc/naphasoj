@@ -411,20 +411,10 @@ function getSwaggerJsonData(owner) {
   // reset
   tagList = [];
   pathList = [];
-  // fetch($('#swagger-json-address').val(), {
-  //   method:'get'
-  // }).then(function (res) {
-  //   console.log(res);
-  //   if (res.ok) {
-  //     return res.json();
-  //   }
-  // }).then(function (params) {
-  //   console.log(params)
-  // }).catch(function (params) {
-  //   console.log('error',params)
-  // })
-  // return;
-  $.get($('#swagger-json-address').val(), function (res) {
+
+  $.get('/api/import-swagger-json', {
+    url: $('#swagger-json-address').val()
+  }, function (res) {
     $(owner).css('display', '');
     $(owner).next().css('display', 'none');
 
