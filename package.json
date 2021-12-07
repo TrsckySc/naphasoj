@@ -24,7 +24,8 @@
     "jsonwebtoken": "^8.5.1",
     "mockjs": "^1.0.1-beta3",
     "mongoose": "^5.5.4",
-    "nodemailer": "^6.1.1"
+    "nodemailer": "^6.1.1",
+    "request": "^2.88.2"
   },
   "devDependencies": {
     "@commitlint/cli": "^8.3.5",
