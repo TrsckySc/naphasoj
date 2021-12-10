@@ -417,7 +417,11 @@ function getSwaggerJsonData(owner) {
   }, function (res) {
     $(owner).css('display', '');
     $(owner).next().css('display', 'none');
-
+    if (res.success === false) {
+      alertInfo(res.errorMsg, 'danger');
+      return;
+    }
+    res = JSON.parse(res);
     console.time('>>>>>>')
     function getDefinitionDto(dtoName) {
       var dto = {};

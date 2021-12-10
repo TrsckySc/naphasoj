@@ -21,7 +21,7 @@ var prefixModal = require("./prefixModal");
 mongoose.connect(config.mongodb, { useNewUrlParser: true });
 var db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error:"));
-db.once("open", function() {
+db.once("open", function () {
   // console.log('mongodb is connected.')
 });
 
@@ -371,21 +371,27 @@ router.get("/api/import-swagger-json", (req, res) => {
       errorMsg: "swagger-json地址不能为空"
     });
   }
-  request(
-    {
-      url: req.query.url,
-      method: "GET",
-      json: true,
-      body: req.body
-    },
-    (error, response, data) => {
-      if (!error && response.statusCode == 200) {
+  request(req.query.url, {
+    proxy: config.swaggerProxy
+  }, (error, response, data) => {
+    if (!error && response.statusCode == 200) {
+      try {
+        JSON.parse(data)
         res.send(data);
-      } else {
-        res.send(error);
+      } catch (e) {
+        res.send({
+          success: false,
+          errorMsg: "地址错误,非JSON数据地址",
+          data
+        });
       }
+    } else {
+      res.send({
+        success: false,
+        errorMsg: error
+      });
     }
-  );
+  });
 });
 
 module.exports = router;
