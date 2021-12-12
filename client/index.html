@@ -313,6 +313,7 @@
           </button>
         </div>
         <div class="modal-body">
+          <!-- url -->
           <div class="row">
             <div class="col-sm-3 text-right" style="line-height: 38px;">Swagger JSON 地址：</div>
             <div class="col-sm-6">
@@ -320,6 +321,20 @@
             </div>
             <div class="col-sm-3">
               <button type="button" class="btn btn-primary" onclick="getSwaggerJsonData(this)">获取</button>
+              <button class="btn btn-primary" type="button" disabled style="display: none;">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                获取中...
+              </button>
+            </div>
+          </div>
+          <!-- local -->
+          <div class="row">
+            <div class="col-sm-3 text-right" style="line-height: 38px;">Swagger JSON 文件：</div>
+            <div class="col-sm-6">
+              <input type="file" class="form-control" id="swagger-json-local" onchange="handleChangeFile(this)" placeholder="Swagger JSON 文件">
+            </div>
+            <div class="col-sm-3">
+              <button type="button" class="btn btn-primary" onclick="getSwaggerJsonLocalData(this)">获取</button>
               <button class="btn btn-primary" type="button" disabled style="display: none;">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                 获取中...
@@ -378,6 +393,7 @@
   <script src="./lib/ace-1.4.4/src/ext-language_tools.js"></script>
 
   <script src="./lib/mock/mock-min.js"></script>
+  <script src='./lib/swagger-client/3.10.0/index.js'></script>
   <script src="./index.js"></script>
 </body>
 
