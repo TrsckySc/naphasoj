@@ -885,3 +885,50 @@ function initMock() {
     alertInfo("格式错误:" + reason, "danger");
   }
 }
+
+// 查询项目配置数据
+$.get("/api/get-config", function (data) {
+  $("#config-mock").val(data.data.mock ? "1" : "0");
+  $("#config-mock-id").val(data.data._id);
+  if (data.data.mock) {
+    // 显示启用中
+    $("#config-mock-warp").addClass("active");
+    $("#config-mock-text").html("Mock 启用中...");
+  } else {
+    // 显示停用中
+    $("#config-mock-text").html("Mock 停用中...");
+  }
+});
+
+function updateProjectMockStatus() {
+  if (confirm("您将要切换Mock状态，是否继续?")) {
+    var status = $("#config-mock").val() === "1" ? false : true;
+    var param = {
+      mock: status,
+      id: $("#config-mock-id").val(),
+    };
+    $.ajax({
+      url: "/api/update-config-mock",
+      method: "post",
+      dataType: "json",
+      data: JSON.stringify(param),
+      contentType: "application/json",
+      success: function (data) {
+        if (data.success) {
+          alertInfo("切换成功", "success");
+
+          $("#config-mock").val(status ? "1" : "0");
+          if (status) {
+            $("#config-mock-warp").addClass("active");
+            $("#config-mock-text").html("Mock 启用中...");
+          } else {
+            $("#config-mock-warp").removeClass("active");
+            $("#config-mock-text").html("Mock 停用中...");
+          }
+        } else {
+          alertInfo(data.errorMsg, "danger");
+        }
+      },
+    });
+  }
+}

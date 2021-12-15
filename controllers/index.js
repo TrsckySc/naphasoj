@@ -17,6 +17,7 @@ var config = require("../config");
 var TodoModal = require("./modal");
 var BaseDataModal = require("./baseDataModal");
 var prefixModal = require("./prefixModal");
+var ConfigModal = require("./configModal");
 
 mongoose.connect(config.mongodb, { useNewUrlParser: true });
 var db = mongoose.connection;
@@ -32,11 +33,11 @@ router.post("/api/import-interface", jsonParser, (req, res) => {
   // 去重
   TodoModal.find({}, (err, items) => {
     if (err) throw err;
-    reqBody.forEach(data => {
+    reqBody.forEach((data) => {
       data.url = data.prefix + data.path;
       data.isLock = false;
       let emp = false;
-      items.forEach(item => {
+      items.forEach((item) => {
         if (item.url === data.url) {
           emp = true;
         }
@@ -48,7 +49,7 @@ router.post("/api/import-interface", jsonParser, (req, res) => {
       if (err) throw err;
       res.send({
         success: true,
-        errorMsg: ""
+        errorMsg: "",
       });
     });
   });
@@ -67,7 +68,7 @@ router.post("/api/add-interface", jsonParser, (req, res) => {
       res.send({
         success: false,
         errorMsg: "已经存在的mock地址",
-        data: {}
+        data: {},
       });
     } else {
       // 存入数据库
@@ -76,7 +77,7 @@ router.post("/api/add-interface", jsonParser, (req, res) => {
       todoObj.save((err, todo) => {
         if (err) throw err;
         res.send({
-          success: true
+          success: true,
         });
       });
 
@@ -85,7 +86,7 @@ router.post("/api/add-interface", jsonParser, (req, res) => {
         from: `JSHA-邮件小助手<${config.sendMailName}>`,
         to: "1625125333@qq.com,iseebin@dingtalk.com",
         subject: "JSHA接口挡板工程 - 新接口通知",
-        text: `新增接口通知\n接口名称：${reqBody.name}\n接口地址：${reqBody.url} \n设计人员已将你添加为收件人，如果是你开发者，请及时关注接口状态。`
+        text: `新增接口通知\n接口名称：${reqBody.name}\n接口地址：${reqBody.url} \n设计人员已将你添加为收件人，如果是你开发者，请及时关注接口状态。`,
         // html: '<b>Hello world, I am a test mail!</b>'
       });
     }
@@ -125,8 +126,8 @@ router.get("/api/get-interface-list", (req, res) => {
             total: total,
             page: req.query.page,
             rows: req.query.rows,
-            list: items
-          }
+            list: items,
+          },
         });
       });
   });
@@ -137,23 +138,23 @@ router.post("/api/delete-interface", jsonParser, (req, res) => {
   if (!req.body || !req.body.id) {
     res.send({
       success: false,
-      errorMsg: "缺少接口id"
+      errorMsg: "缺少接口id",
     });
   }
-  TodoModal.deleteOne({ _id: req.body.id }, err => {
+  TodoModal.deleteOne({ _id: req.body.id }, (err) => {
     if (err) throw err;
     res.send({
-      success: true
+      success: true,
     });
   });
 });
 
 // 清空接口
 router.get("/api/delete-all-interface", jsonParser, (req, res) => {
-  TodoModal.deleteMany({ isLock: false }, err => {
+  TodoModal.deleteMany({ isLock: false }, (err) => {
     if (err) throw err;
     res.send({
-      success: true
+      success: true,
     });
   });
 });
@@ -163,14 +164,14 @@ router.post("/api/get-interface-detail", jsonParser, (req, res) => {
   if (!req.body || !req.body.id) {
     res.send({
       success: false,
-      errorMsg: "缺少接口id"
+      errorMsg: "缺少接口id",
     });
   }
   TodoModal.findById(req.body.id, (err, item) => {
     if (err) throw err;
     res.send({
       success: true,
-      data: item
+      data: item,
     });
   });
 });
@@ -180,7 +181,7 @@ router.post("/api/update-interface", jsonParser, (req, res) => {
   if (!req.body || !req.body.id) {
     res.send({
       success: false,
-      errorMsg: "缺少接口id"
+      errorMsg: "缺少接口id",
     });
   }
   TodoModal.findById(req.body.id, (err, item) => {
@@ -193,10 +194,10 @@ router.post("/api/update-interface", jsonParser, (req, res) => {
     item.sourceData = req.body.sourceData;
     item.method = req.body.method;
 
-    item.save(err => {
+    item.save((err) => {
       if (err) throw err;
       res.send({
-        success: true
+        success: true,
       });
     });
   });
@@ -207,16 +208,16 @@ router.post("/api/change-interface-mock-status", jsonParser, (req, res) => {
   if (!req.body || !req.body.id) {
     res.send({
       success: false,
-      errorMsg: "缺少接口id"
+      errorMsg: "缺少接口id",
     });
   }
   TodoModal.findById(req.body.id, (err, item) => {
     if (err) throw err;
     item.isOpen = req.body.isOpen;
-    item.save(err => {
+    item.save((err) => {
       if (err) throw err;
       res.send({
-        success: true
+        success: true,
       });
     });
   });
@@ -227,7 +228,7 @@ router.post("/api/change-interface-lock-status", jsonParser, (req, res) => {
   if (!req.body || !req.body.id) {
     res.send({
       success: false,
-      errorMsg: "缺少接口id"
+      errorMsg: "缺少接口id",
     });
   }
   if (
@@ -237,16 +238,16 @@ router.post("/api/change-interface-lock-status", jsonParser, (req, res) => {
   ) {
     res.send({
       success: false,
-      errorMsg: "参数isLock未传或数据类型错误 应为boolean类型"
+      errorMsg: "参数isLock未传或数据类型错误 应为boolean类型",
     });
   }
   TodoModal.findById(req.body.id, (err, item) => {
     if (err) throw err;
     item.isLock = req.body.isLock;
-    item.save(err => {
+    item.save((err) => {
       if (err) throw err;
       res.send({
-        success: true
+        success: true,
       });
     });
   });
@@ -258,7 +259,7 @@ router.get("/api/get-base-list", (req, res) => {
     if (err) throw err;
     res.send({
       success: true,
-      data: items
+      data: items,
     });
   });
 });
@@ -272,7 +273,7 @@ router.post("/api/update-base-data", jsonParser, (req, res) => {
     todoObj.save((err, todo) => {
       if (err) throw err;
       res.send({
-        success: true
+        success: true,
       });
     });
   } else {
@@ -282,10 +283,10 @@ router.post("/api/update-base-data", jsonParser, (req, res) => {
       item.aceData = req.body.aceData;
       item.data = req.body.data;
 
-      item.save(err => {
+      item.save((err) => {
         if (err) throw err;
         res.send({
-          success: true
+          success: true,
         });
       });
     });
@@ -297,14 +298,14 @@ router.post("/api/get-base-data-by-id", jsonParser, (req, res) => {
   if (!req.body || !req.body.id) {
     res.send({
       success: false,
-      errorMsg: "缺少接口id"
+      errorMsg: "缺少接口id",
     });
   }
   BaseDataModal.findById(req.body.id, (err, item) => {
     if (err) throw err;
     res.send({
       success: true,
-      data: item
+      data: item,
     });
   });
 });
@@ -315,7 +316,7 @@ router.get("/api/get-prefix-list", (req, res) => {
     if (err) throw err;
     res.send({
       success: true,
-      data: items
+      data: items,
     });
   });
 });
@@ -331,7 +332,7 @@ router.post("/api/add-prefix", jsonParser, (req, res) => {
       res.send({
         success: false,
         errorMsg: "已经存在的前缀",
-        data: {}
+        data: {},
       });
     } else {
       // 存入数据库
@@ -340,7 +341,7 @@ router.post("/api/add-prefix", jsonParser, (req, res) => {
       prefixObj.save((err, todo) => {
         if (err) throw err;
         res.send({
-          success: true
+          success: true,
         });
       });
     }
@@ -352,13 +353,13 @@ router.post("/api/delete-prefix", jsonParser, (req, res) => {
   if (!req.body || !req.body.code) {
     res.send({
       success: false,
-      errorMsg: "缺少前缀code"
+      errorMsg: "缺少前缀code",
     });
   }
-  prefixModal.deleteOne({ code: req.body.code }, err => {
+  prefixModal.deleteOne({ code: req.body.code }, (err) => {
     if (err) throw err;
     res.send({
-      success: true
+      success: true,
     });
   });
 });
@@ -368,30 +369,111 @@ router.get("/api/import-swagger-json", (req, res) => {
   if (!req.query.url) {
     res.send({
       success: false,
-      errorMsg: "swagger-json地址不能为空"
+      errorMsg: "swagger-json地址不能为空",
     });
   }
-  request(req.query.url, {
-    proxy: config.swaggerProxy
-  }, (error, response, data) => {
-    if (!error && response.statusCode == 200) {
-      try {
-        JSON.parse(data)
-        res.send(data);
-      } catch (e) {
+  request(
+    req.query.url,
+    {
+      proxy: config.swaggerProxy,
+    },
+    (error, response, data) => {
+      if (!error && response.statusCode == 200) {
+        try {
+          JSON.parse(data);
+          res.send(data);
+        } catch (e) {
+          res.send({
+            success: false,
+            errorMsg: "地址错误,非JSON数据地址",
+            data,
+          });
+        }
+      } else {
         res.send({
           success: false,
-          errorMsg: "地址错误,非JSON数据地址",
-          data
+          errorMsg: error,
         });
       }
-    } else {
-      res.send({
-        success: false,
-        errorMsg: error
-      });
     }
+  );
+});
+
+// 查询配置信息
+router.get("/api/get-config", (req, res) => {
+  ConfigModal.find({}, (err, items) => {
+    if (err) throw err;
+    res.send({
+      success: true,
+      data: items[0] || {
+        target: "",
+        delay: "",
+      },
+    });
   });
 });
+
+// 更新配置信息
+router.post("/api/update-config", jsonParser, (req, res) => {
+  let reqBody = req.body;
+
+  // 更新或新增数据
+  if (reqBody.id) {
+    // 更新
+    ConfigModal.findById(reqBody.id, (err, item) => {
+      if (err) throw err;
+      item.target = reqBody.target;
+      item.delay = reqBody.delay;
+
+      item.save((err) => {
+        if (err) throw err;
+        res.send({
+          success: true,
+        });
+      });
+    });
+  } else {
+    // 新增
+    reqBody.mock = true; // 默认开启mock
+    var configObj = new ConfigModal(reqBody);
+
+    configObj.save((err, todo) => {
+      if (err) throw err;
+      res.send({
+        success: true,
+      });
+    });
+  }
+});
+
+// 切换项目mock状态
+router.post("/api/update-config-mock", jsonParser, (req, res) => {
+  let reqBody = req.body;
+  if (!reqBody.id) {
+    res.send({
+      success: false,
+      errorMsg: '缺少id参数'
+    });
+    return;
+  }
+  if (typeof reqBody.mock != 'boolean') {
+    res.send({
+      success: false,
+      errorMsg: '缺少mock参数或数据格式不正确'
+    });
+    return;
+  }
+  ConfigModal.findById(reqBody.id, (err, item) => {
+    if (err) throw err;
+    item.mock = reqBody.mock;
+
+    item.save((err) => {
+      if (err) throw err;
+      res.send({
+        success: true,
+      });
+    });
+  });
+})
 
 module.exports = router;

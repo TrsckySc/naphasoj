@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta http-equiv="Cache" content="no-cache">
+  <link rel="icon" href="./favicon.ico" type="image/x-icon">
+  <title>项目配置维护 - SNAKE-API</title>
+  <link href="./lib/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+  <!-- nav -->
+  <div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="/mock">SNAKE-API <small>Mini</small></a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+        aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-between" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+          <a class="nav-item nav-link" href="/mock">接口列表</a>
+          <a class="nav-item nav-link" href="/mock/base-data.html">响应数据维护</a>
+          <a class="nav-item nav-link" href="/mock/prefix.html">接口前缀维护</a>
+          <a class="nav-item nav-link active" href="/mock/config.html">项目配置维护</a>
+        </div>
+        <div>
+          <a class="btn-link" href="https://www.snake-api.com" target="_blank">SNAKE-API 官网</a>
+          <a class="ml-3" href='https://gitee.com/seebin/mock-data/' target="_blank"><img src='https://gitee.com/seebin/mock-data/badge/star.svg?theme=dark' alt='star'></img></a>
+        </div>
+      </div>
+    </nav>
+  </div>
+
+  <div class="p-3">
+    <form>
+      <div class="form-group">
+        <label for="prefix-code">代理地址</label>
+        <input type="text" class="form-control" id="target-url" placeholder="请输入代理地址">
+      </div>
+      <div class="form-group">
+        <label for="prefix-remark">mock响应延时(单位：毫秒)</label>
+        <input type="number" class="form-control" id="delay-data" placeholder="请输入延时时间">
+      </div>
+      <input type="hidden" class="form-control" id="config-id" >
+    </form>
+    <button type="button" class="btn btn-primary" onclick="saveConfig()" id="save-btn">保存</button>
+  </div>
+
+  <!-- alert info -->
+  <div id="alert" class="alert alert-success position-fixed w-50" role="alert"
+    style="display: none;top:40px;left:50%;margin-left:-25%;z-index:9999999999"></div>
+
+  <script src="./lib/jquery.min.js"></script>
+  <script src="./lib/popper.min.js"></script>
+  <script src="./lib/handlebars.min.js"></script>
+  <script src="./lib/bootstrap.min.js"></script>
+
+  <script>
+
+    Handlebars.registerHelper('addOne', (value) => {
+      return value + 1;
+    })
+
+  
+
+    // 封装alert
+    function alertInfo(content, type) {
+      $('#alert').text(content);
+      var alertEle = document.getElementById('alert');
+      alertEle.className = 'alert position-fixed w-50' + ' alert-' + (type || 'success');
+      $('#alert').fadeIn('fast');
+
+      setTimeout(() => {
+        $('#alert').fadeOut('slow');
+      }, 2500);
+    }
+
+    // 查询配置数据
+    $.get('/api/get-config', function (data) {
+      $('#target-url').val(data.data.target)
+      $('#delay-data').val(data.data.delay)
+      $('#config-id').val(data.data._id)
+    })
+
+    function saveConfig(){
+
+      var param = {
+        target: $('#target-url').val(),
+        delay: $('#delay-data').val() ? ($('#delay-data').val() * 1) : 20,
+        id: $('#config-id').val(),
+      };
+
+      if (!param.target) {
+        alertInfo('请输入代理地址', 'danger');
+        return;
+      }
+
+      if (param.target.indexOf('http') === -1) {
+        alertInfo('请输入正确的地址', 'danger');
+        return;
+      }
+
+      $.ajax({
+        url: '/api/update-config',
+        method: 'post',
+        dataType: "json",
+        data: JSON.stringify(param),
+        contentType: "application/json",
+        success: function (data) {
+          if (data.success) {
+            alertInfo('保存成功', 'success');
+          } else {
+            alertInfo(data.errorMsg, 'danger');
+          }
+        }
+      })
+    }
+
+  </script>
+</body>
+
+</html>
