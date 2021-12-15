@@ -313,34 +313,50 @@
           </button>
         </div>
         <div class="modal-body">
-          <!-- url -->
-          <div class="row">
-            <div class="col-sm-3 text-right" style="line-height: 38px;">Swagger JSON 地址：</div>
-            <div class="col-sm-6">
-              <input type="text" class="form-control" id="swagger-json-address" placeholder="http://">
+          <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link active" id="url-tab" data-toggle="tab" role="tab" href="#swagger-url-warp" aria-controls="swagger-url-warp" aria-selected="true">URL 导入</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="file-tab" data-toggle="tab" role="tab" href="#swagger-file-warp" aria-controls="swagger-file-warp" aria-selected="false">本地文件导入</a>
+            </li>
+          </ul>
+          <div class="tab-content pt-3" id="myTabContent">
+            <div class="tab-pane fade show active" id="swagger-url-warp" role="tabpanel" aria-labelledby="url-tab">
+              <!-- url -->
+              <div class="row">
+                <div class="col-sm-3 text-right" style="line-height: 38px;">Swagger JSON 地址：</div>
+                <div class="col-sm-6">
+                  <input type="text" class="form-control" id="swagger-json-address" placeholder="http://">
+                </div>
+                <div class="col-sm-3">
+                  <button type="button" class="btn btn-primary" onclick="getSwaggerJsonData(this)">获取</button>
+                  <button class="btn btn-primary" type="button" disabled style="display: none;">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    获取中...
+                  </button>
+                </div>
+              </div>
             </div>
-            <div class="col-sm-3">
-              <button type="button" class="btn btn-primary" onclick="getSwaggerJsonData(this)">获取</button>
-              <button class="btn btn-primary" type="button" disabled style="display: none;">
-                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                获取中...
-              </button>
+            <div class="tab-pane fade" id="swagger-file-warp" role="tabpanel" aria-labelledby="file-tab">
+              <!-- local -->
+              <div class="row">
+                <div class="col-sm-3 text-right" style="line-height: 38px;">Swagger JSON 文件：</div>
+                <div class="col-sm-6">
+                  <input type="file" class="form-control" id="swagger-json-local" onchange="handleChangeFile(this)" placeholder="Swagger JSON 文件">
+                </div>
+                <div class="col-sm-3">
+                  <button type="button" class="btn btn-primary" onclick="getSwaggerJsonLocalData(this)">获取</button>
+                  <button class="btn btn-primary" type="button" disabled style="display: none;">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    获取中...
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-          <!-- local -->
-          <div class="row">
-            <div class="col-sm-3 text-right" style="line-height: 38px;">Swagger JSON 文件：</div>
-            <div class="col-sm-6">
-              <input type="file" class="form-control" id="swagger-json-local" onchange="handleChangeFile(this)" placeholder="Swagger JSON 文件">
-            </div>
-            <div class="col-sm-3">
-              <button type="button" class="btn btn-primary" onclick="getSwaggerJsonLocalData(this)">获取</button>
-              <button class="btn btn-primary" type="button" disabled style="display: none;">
-                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                获取中...
-              </button>
-            </div>
-          </div>
+          
+          
           <div class="mt-3" style="height: 1px;background-color: #dee2e6;"></div>
           <div id="swagger-path-warp"></div>
         </div>
