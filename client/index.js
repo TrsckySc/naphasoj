@@ -138,35 +138,39 @@ editor.commands.addCommand({
   name: "fullscreen",
   bindKey: { win: "Ctrl-Enter", mac: "Command-Enter" },
   exec: function (editor) {
-    // 通过css来控制全屏
+    var ele = document.getElementById("interface-data");
     if (editor.isFullScreen) {
-      $("#interface-data").css({
-        position: "relative",
-        left: 0,
-        top: 0,
-        width: "100%",
-        height: "300px",
-        "z-index": "auto",
-      });
-      editor.resize();
+      exitFullscreen();
       editor.isFullScreen = false;
-      document.body.style.overflow = "auto";
     } else {
-      $("#interface-data").css({
-        position: "fixed",
-        left: 0,
-        top: 0,
-        width: $(window).width(),
-        height: $(window).height(),
-        "z-index": "1000",
-      });
-      editor.resize();
+      launchFullscreen(ele);
       editor.isFullScreen = true;
-      document.body.style.overflow = "hidden";
     }
   },
   readOnly: true, // 只读下设置可以全屏展示
 });
+
+function launchFullscreen(element) {
+  if (element.requestFullscreen) {
+    element.requestFullscreen();
+  } else if (element.mozRequestFullScreen) {
+    element.mozRequestFullScreen();
+  } else if (element.webkitRequestFullscreen) {
+    element.webkitRequestFullscreen();
+  } else if (element.msRequestFullscreen) {
+    element.msRequestFullscreen();
+  }
+}
+
+function exitFullscreen() {
+  if (document.exitFullscreen) {
+    document.exitFullscreen();
+  } else if (document.mozCancelFullScreen) {
+    document.mozCancelFullScreen();
+  } else if (document.webkitExitFullscreen) {
+    document.webkitExitFullscreen();
+  }
+}
 
 // editor.getSession().setUseWrapMode(true);//设置折叠 默认折叠的
 editor.getSession().setTabSize(2); // 设置制表符大小
@@ -900,8 +904,8 @@ $.get("/api/get-config", function (data) {
   }
 
   if (data.data.mock === undefined) {
-    alert('检测到你还没有维护代理地址, 请先维护项目代理地址')
-    window.location.href = '/mock/config.html';
+    alert("检测到你还没有维护代理地址, 请先维护项目代理地址");
+    window.location.href = "/mock/config.html";
   }
 });
 
