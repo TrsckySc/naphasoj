@@ -898,6 +898,11 @@ $.get("/api/get-config", function (data) {
     // 显示停用中
     $("#config-mock-text").html("Mock 停用中...");
   }
+
+  if (data.data.mock === undefined) {
+    alert('检测到你还没有维护代理地址, 请先维护项目代理地址')
+    window.location.href = '/mock/config.html';
+  }
 });
 
 function updateProjectMockStatus() {
