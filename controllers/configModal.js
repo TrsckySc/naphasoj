@@ -3,6 +3,7 @@ var mongoose = require("mongoose");
 var configSchemas = mongoose.Schema(
   {
     target: String, // 代理地址
+    changeOrigin: Boolean, // 是否变更来源
     delay: Number, // mock数据响应延时
     mock: Boolean, // 是否开启mock
   },

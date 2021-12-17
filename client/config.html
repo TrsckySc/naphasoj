@@ -49,6 +49,19 @@
         <input type="number" class="form-control" id="delay-data" placeholder="请输入延时时间">
       </div>
       <input type="hidden" class="form-control" id="config-id" >
+      <div class="form-group">
+        <label for="prefix-remark">变更来源</label>
+        <div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="changeOrigin" id="inlineRadio1" value="1">
+            <label class="form-check-label" for="inlineRadio1">变更</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="changeOrigin" id="inlineRadio2" value="0">
+            <label class="form-check-label" for="inlineRadio2">不变更</label>
+          </div>
+        </div>
+      </div>
     </form>
     <button type="button" class="btn btn-primary" onclick="saveConfig()" id="save-btn">保存</button>
   </div>
@@ -84,9 +97,14 @@
 
     // 查询配置数据
     $.get('/api/get-config', function (data) {
-      $('#target-url').val(data.data.target)
-      $('#delay-data').val(data.data.delay)
-      $('#config-id').val(data.data._id)
+      if (data.success) {
+        $('#target-url').val(data.data.target);
+        $('#delay-data').val(data.data.delay);
+        $('#config-id').val(data.data._id);
+        $("input:radio[value='"+ !!data.data.changeOrigin * 1 +"']").prop('checked','true');
+      } else {
+        alertInfo(data.errorMsg, 'danger');
+      }
     })
 
     function saveConfig(){
@@ -95,6 +113,7 @@
         target: $('#target-url').val(),
         delay: $('#delay-data').val() ? ($('#delay-data').val() * 1) : 20,
         id: $('#config-id').val(),
+        changeOrigin: Boolean($('input[name="changeOrigin"]:checked').val() * 1)
       };
 
       if (!param.target) {

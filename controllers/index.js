@@ -408,6 +408,7 @@ router.get("/api/get-config", (req, res) => {
       data: items[0] || {
         target: "",
         delay: "",
+        changeOrigin: false,
       },
     });
   });
@@ -424,6 +425,7 @@ router.post("/api/update-config", jsonParser, (req, res) => {
       if (err) throw err;
       item.target = reqBody.target;
       item.delay = reqBody.delay;
+      item.changeOrigin = reqBody.changeOrigin;
 
       item.save((err) => {
         if (err) throw err;
@@ -452,14 +454,14 @@ router.post("/api/update-config-mock", jsonParser, (req, res) => {
   if (!reqBody.id) {
     res.send({
       success: false,
-      errorMsg: '缺少id参数'
+      errorMsg: "缺少id参数",
     });
     return;
   }
-  if (typeof reqBody.mock != 'boolean') {
+  if (typeof reqBody.mock != "boolean") {
     res.send({
       success: false,
-      errorMsg: '缺少mock参数或数据格式不正确'
+      errorMsg: "缺少mock参数或数据格式不正确",
     });
     return;
   }
@@ -474,6 +476,6 @@ router.post("/api/update-config-mock", jsonParser, (req, res) => {
       });
     });
   });
-})
+});
 
 module.exports = router;

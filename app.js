@@ -20,6 +20,7 @@ app.use((req, res, next) => {
     var data = item[0] || {};
 
     req.target = data.target;
+    req.changeOrigin = !!data.changeOrigin;
     if (data.mock) {
       // 拿到地址，去数据库中查询，如果没有则用axios调用接口，否则返回数据库里面的mock数据字段
       TodoModal.find({ url: req.path }, (err, item) => {
@@ -43,12 +44,23 @@ app.use((req, res, next) => {
 
 // 非挡板接口代理到目标环境
 app.use(function (req, res) {
+  if (!req.target) {
+    res.writeHead(500, {
+      "Content-Type": "text/plain",
+    });
+    res
+      .status(500)
+      .end(
+        `未设置项目代理地址, 请先进入 http://127.0.0.1:${config.port}/config.html 去设置代理地址!`
+      );
+    return;
+  }
   //创建代理对象
-  let proxy = httpProxy.createProxyServer({
+  var proxy = httpProxy.createProxyServer({
     //代理地址为http时
     target: req.target,
     //是否需要改变原始主机头为目标URL
-    changeOrigin: true,
+    changeOrigin: req.changeOrigin,
     // 重写cookie的作用域
     // cookieDomainRewrite: {
     //   '*': 'dev.yilihuo.com'
