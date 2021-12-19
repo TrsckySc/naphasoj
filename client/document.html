@@ -66,9 +66,54 @@
     <h2 class="text-secondary">答疑解惑</h2>
     <div class="border-top mb-3"></div>
     <h4 id="changeOrigin" class="text-secondary">如何选择变更来源</h4>
-    <p>不同的开发环境需要使用不同的配置，否则会导致代理无法使用的问题:</p>
+    <p>不同的开发环境可能会需要使用不同的配置，否则会导致代理无法使用的问题:</p>
     <p class="text-dark">1. 如果测试环境为阿里环境或其他云服务商环境，仅支持域名访问，而本地开发使用nginx来反向代理测试环境且访问地址与测试环境一致，请选择不变更来源</p>
     <p class="text-dark">2. 如果使用vue等自带代理工具的脚手架项目，由于本地项目访问是127.0.0.1, 这时需要选择变更来源</p>
+
+    <h4 id="mockjs" class="text-secondary pt-4">如何使用MockJS语法生成随机mock数据</h4>
+    <p>Mock.js 是一个可以生成生成随机数据的js库。本项目可支持下面写法以及其他写法，部分语法不支持(比如正则)，这是由于JSON5数据不支持导致的。</p>
+    <pre class="border p-2 bg-light"><code>// 支持以下两种写法，并且可混用
+
+-----------数据模板定义规范-----------
+{
+  // 属性 list 的值是一个数组，其中含有 3 个元素
+  'list|3': [{
+      // 属性 id 是一个自增数，起始值为 1，每次增 1
+      'id|+1': 1
+  }]
+}
+// 生成==>
+{
+  "list": [
+    {
+      "id": 1
+    },
+    {
+      "id": 2
+    },
+    {
+      "id": 3
+    }
+  ]
+}
+-----------数据占位符定义规范-----------
+{
+  name: "@cname()", // 随机生成一个中文名
+  code: "@string()", // 随机生成一串字符串
+  id: "@integer()", // 随机生成一个数字
+  age: "@integer(10,100)", // 随机生成一个10至100的数字
+  avter: "@image('100x100')", // 生成一个100x100的图片
+}
+// 生成==>
+{
+  name: "张三",
+  code: "sdfafw1212131",
+  id: 1231831283121,
+  age: 48,
+  avter: "http://dummyimage.com/100x100"
+}
+</code></pre>
+<p>更多用法可访问：<a target="_blank" href="https://github.com/nuysoft/Mock/wiki/Getting-Started">https://github.com/nuysoft/Mock/wiki/Getting-Started</a></p>
   </div>
 </body>
 
