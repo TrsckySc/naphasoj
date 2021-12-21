@@ -438,14 +438,11 @@ function getResData(data) {
     data = data.properties;
     if (!data) return {};
     Object.keys(data).forEach(function (propKey) {
-      if (data[propKey].type === "array") {
-        res[propKey] = getResData(data[propKey].items);
-      } else {
-        res[propKey] = getResData(data[propKey]);
-      }
+      res[propKey] = getResData(data[propKey]);
     });
   } else if (data.type === "array") {
-    res = getResData(data.items);
+    res = [];
+    res.push(getResData(data.items));
   } else {
     if (!data.example) {
       if (data.type === "integer" || data.type === "number") data.example = 0;
@@ -480,7 +477,7 @@ function handleSwaggerJSON(res, owner) {
         name: methodData.summary,
         path: pathKey,
         data: resData,
-        sourceData: JSON5.stringify(JSON.stringify(resData, null, 4)),
+        sourceData: JSON5.stringify(JSON.stringify(resData, null, 2)),
         method: methodKey.toLocaleUpperCase(),
         prefix: res.basePath,
         isOpen: true,
