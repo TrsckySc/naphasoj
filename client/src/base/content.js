@@ -1,9 +1,12 @@
-import React, { Fragment } from "react";
+import React from "react";
 
 export default function Content(props) {
+  const warp = {
+    paddingTop: '66px'
+  }
   return (
-    <Fragment>
+    <div style={warp}>
       {props.children}
-    </Fragment>
+    </div>
   );
 }

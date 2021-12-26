@@ -1,17 +1,17 @@
 import React from "react";
 import SnakeHeader from "./base/header";
 import SnakeContent from "./base/content";
-import { HashHistory as Router, Switch, Route } from "react-router-dom";
+import { HashRouter as Router, Switch, Route } from "react-router-dom";
 import { routes } from "./router";
-import { Header, Footer, Content, Layout } from "antd";
+import { Layout } from "antd";
 
-// const { Header, Footer, Content } = Layout;
+const { Header, Footer, Content } = Layout;
 
 function App() {
   return (
-    <Router basename="/mock">
+    <Router>
       <Layout>
-        <Header style={{ position: 'fixed', zIndex: 1, width: '100%' }}>
+        <Header className="header" style={{ position: 'fixed', zIndex: 1, width: '100%' }}>
           <SnakeHeader />
         </Header>
         <Content>
@@ -23,7 +23,7 @@ function App() {
             </Switch>
           </SnakeContent>
         </Content>
-        <Footer style={{ textAlign: 'center' }}>Footer</Footer>
+        <Footer style={{ textAlign: 'center', padding:'10px' }}>Footer</Footer>
       </Layout>
     </Router>
   );
