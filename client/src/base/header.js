@@ -1,12 +1,19 @@
 import React, { Fragment } from "react";
-import { Link } from "react-router-dom";
+import { Link, withRouter } from "react-router-dom";
 import { Menu } from "antd";
+import { routes } from "../router";
 
-export default function Header() {
+function Header(props) {
+  let count = '1';
+  for (let i = 0; i < routes.length; i++) {
+    if (routes[i].path === props.history.location.pathname) {
+      count = `${i + 1}`
+    }
+  }
   return (
     <Fragment>
-      <div style={{float:'left',fontSize:'20px',marginRight:'20px',height:'64px'}} >SNAKE-API <small>mini</small></div>
-      <Menu mode="horizontal" defaultSelectedKeys={["1"]}>
+      <div style={{ float: 'left', fontSize: '20px', marginRight: '20px', height: '64px' }} >SNAKE-API <small>mini</small></div>
+      <Menu mode="horizontal" defaultSelectedKeys={[count]}>
         <Menu.Item key="1">
           <Link to="/">接口列表</Link>
         </Menu.Item>
@@ -17,3 +24,5 @@ export default function Header() {
     </Fragment>
   );
 }
+
+export default withRouter(Header);

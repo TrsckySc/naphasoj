@@ -5,11 +5,13 @@ export const routes = [
   {
     path: "/",
     component: Home,
-    exact:true
+    exact: true,
+    title: "接口列表"
   },
   {
     path: "/base-data",
     component: BaseData,
+    title: "响应数据维护"
     // routes: [
     //   {
     //     path: "/tacos/bus",

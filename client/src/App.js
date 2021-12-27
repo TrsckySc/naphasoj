@@ -23,13 +23,14 @@ function App() {
             </Switch>
           </SnakeContent>
         </Content>
-        <Footer style={{ textAlign: 'center', padding:'10px' }}>Footer</Footer>
+        <Footer style={{ textAlign: 'center', padding: '10px' }}>技术支持：seebin | 钉钉交流群:21958681</Footer>
       </Layout>
     </Router>
   );
 }
 
 function RouteWithSubRoutes(route) {
+  document.title = route.title;
   return (
     <Route
       exact={route.exact}
