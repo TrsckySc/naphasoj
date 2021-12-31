@@ -45,21 +45,21 @@ app.use((req, res, next) => {
 
 // 非挡板接口代理到目标环境
 app.use(function (req, res) {
-  if (!req.target) {
-    res.writeHead(500, {
-      "Content-Type": "text/plain",
-    }); 
-    res
-      .status(500)
-      .end(
-        `未设置项目代理地址, 请先进入 http://127.0.0.1:${config.port}/config.html 去设置代理地址!`
-      );
-    return;
-  }
+  // if (!req.target) {
+  //   res.writeHead(500, {
+  //     "Content-Type": "text/plain;charset=UTF-8",
+  //   }); 
+  //   res
+  //     .status(500)
+  //     .end(
+  //       `未设置项目代理地址, 请先进入 http://127.0.0.1:${config.port}/config.html 去设置代理地址!`
+  //     );
+  //   return;
+  // }
   //创建代理对象
   var proxy = httpProxy.createProxyServer({
     //代理地址为http时
-    target: req.target,
+    target: req.target || 'http://12.168.3.15',
     //是否需要改变原始主机头为目标URL
     changeOrigin: req.changeOrigin,
     // 重写cookie的作用域

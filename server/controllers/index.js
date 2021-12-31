@@ -84,28 +84,27 @@ router.post("/api/add-interface", jsonParser, (req, res) => {
 });
 
 // 获取接口列表
-router.get("/api/get-interface-list", (req, res) => {
+router.post("/api/get-interface-list", jsonParser, (req, res) => {
   var param = {};
   // 添加接口名称入参
-  if (req.query && req.query.name) {
-    param.name = { $regex: req.query.name };
+  if (req.body && req.body.name) {
+    param.name = { $regex: req.body.name };
   }
   // 添加接口地址入参
-  if (req.query && req.query.url) {
-    param.url = { $regex: req.query.url };
+  if (req.body && req.body.url) {
+    param.url = { $regex: req.body.url };
   }
-
-  if (!req.query.page) req.query.page = 1;
-  if (!req.query.rows) req.query.rows = 5;
+  if (!req.body.page) req.body.page = 1;
+  if (!req.body.rows) req.body.rows = 5;
 
   TodoModal.find(param, (err, items) => {
     if (err) throw err;
     var total = items.length;
-    var pages = Math.ceil(total / req.query.rows);
+    var pages = Math.ceil(total / req.body.rows);
     TodoModal.find(param)
       .sort({ _id: -1 }) // 1 为生序  -1为降序
-      .skip((req.query.page - 1) * req.query.rows)
-      .limit(req.query.rows * 1)
+      .skip((req.body.page - 1) * req.body.rows)
+      .limit(req.body.rows * 1)
       .exec((err, items) => {
         if (err) throw err;
 
@@ -114,8 +113,8 @@ router.get("/api/get-interface-list", (req, res) => {
           data: {
             pages: pages,
             total: total,
-            page: req.query.page,
-            rows: req.query.rows,
+            page: req.body.page,
+            rows: req.body.rows,
             list: items,
           },
         });

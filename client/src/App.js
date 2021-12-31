@@ -11,7 +11,15 @@ function App() {
   return (
     <Router>
       <Layout>
-        <Header className="header" style={{ position: 'fixed', zIndex: 1, width: '100%' }}>
+        <Header
+          className="header"
+          style={{
+            position: "fixed",
+            zIndex: 1,
+            width: "100%",
+            padding: "0 20px",
+          }}
+        >
           <SnakeHeader />
         </Header>
         <Content>
@@ -23,7 +31,9 @@ function App() {
             </Switch>
           </SnakeContent>
         </Content>
-        <Footer style={{ textAlign: 'center', padding: '10px' }}>技术支持：seebin | 钉钉交流群:21958681</Footer>
+        <Footer style={{ textAlign: "center", padding: "10px" }}>
+          技术支持：seebin | 钉钉交流群:21958681
+        </Footer>
       </Layout>
     </Router>
   );
