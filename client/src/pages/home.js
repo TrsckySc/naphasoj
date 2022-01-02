@@ -1,5 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, Button, Table, Tag, Select, Space } from "antd";
+import {
+  Form,
+  Input,
+  Button,
+  Table,
+  Tag,
+  Select,
+  Space,
+  message,
+  Popconfirm,
+  Drawer,
+  Row,
+  Col,
+  Title,
+} from "antd";
 import {
   PlusCircleOutlined,
   ImportOutlined,
@@ -14,6 +28,10 @@ import Axios from "axios";
 
 export function Home() {
   const [filter, setFilter] = useState({});
+
+  const [tableList, setTableList] = useState([]);
+
+  const [drawer, setDrawer] = useState(false);
 
   const getListData = (name, url, page) => {
     const param = {
@@ -31,8 +49,6 @@ export function Home() {
     });
   };
 
-  const [tableList, setTableList] = useState([]);
-
   useEffect(() => {
     getListData(filter.name, filter.url, 1);
   }, [filter]);
@@ -45,6 +61,7 @@ export function Home() {
         isOpen: value === "open",
       }).then((res) => {
         if (res.data.success) {
+          message.success(value === "open" ? "成功启用" : "接口已停用");
           const table = tableList.map((data) => {
             if (id === data._id) {
               return Object.assign(data, {
@@ -56,6 +73,7 @@ export function Home() {
           // 更改列表数据
           setTableList(table);
         } else {
+          message.error(res.data.errorMsg);
         }
       });
     } else if (type === "changeLock") {
@@ -64,6 +82,9 @@ export function Home() {
         isLock: value,
       }).then((res) => {
         if (res.data.success) {
+          message.success(
+            value ? "接口已锁，将无法编辑与删除操作" : "接口已解锁"
+          );
           const table = tableList.map((data) => {
             if (id === data._id) {
               return Object.assign(data, {
@@ -74,6 +95,18 @@ export function Home() {
           });
           // 更改列表数据
           setTableList(table);
+        } else {
+          message.error(res.data.errorMsg);
+        }
+      });
+    } else if (type === "delete") {
+      Axios.post("/api/delete-interface", {
+        id,
+      }).then((res) => {
+        if (res.data.success) {
+          message.success("删除成功");
+          // 重新查询数据
+          getListData(filter.name, filter.url, 1);
         } else {
         }
       });
@@ -91,11 +124,26 @@ export function Home() {
         initSearch={() => {
           getListData();
         }}
+        openDrawer={() => {
+          setDrawer(true);
+        }}
       ></HandleBtn>
       <PageTable
         dataSource={tableList}
         onHandleTableRow={handleTableRow}
       ></PageTable>
+
+      <Drawer
+        title="接口说明"
+        placement="left"
+        destroyOnClose={false}
+        forceRender={true}
+        onClose={() => setDrawer(false)}
+        visible={drawer}
+        width="80%"
+      >
+        <HandleInterface></HandleInterface>
+      </Drawer>
     </div>
   );
 }
@@ -137,11 +185,15 @@ function Search(props) {
   );
 }
 
-function HandleBtn() {
+function HandleBtn(props) {
   return (
     <div className="pt-20 pb-20 clearfix">
       <div style={{ float: "left" }}>
-        <Button type="primary" icon={<PlusCircleOutlined />}>
+        <Button
+          type="primary"
+          onClick={() => props.openDrawer()}
+          icon={<PlusCircleOutlined />}
+        >
           新建接口
         </Button>
         <Button type="dashed" icon={<ImportOutlined />} className="ml-20">
@@ -193,7 +245,7 @@ function PageTable(props) {
       key: "method",
       align: "center",
       render: (method) => (
-        <Tag color={method === "POST" ? "green" : "geekblue"}>
+        <Tag color={method === "POST" ? "#52c41a" : "#1890ff"}>
           {method.toUpperCase()}
         </Tag>
       ),
@@ -250,19 +302,48 @@ function PageTable(props) {
       render: (text, record, index) => (
         <Space>
           {record.isLock ? (
-            <Button type="link" size="small" icon={<LockOutlined />} />
+            <>
+              <Button
+                type="link"
+                size="small"
+                onClick={() =>
+                  props.onHandleTableRow("changeLock", false, record._id)
+                }
+                icon={<LockOutlined />}
+              />
+            </>
           ) : (
-            <Button type="link" size="small" icon={<UnlockOutlined />} />
+            <Button
+              type="link"
+              size="small"
+              onClick={() =>
+                props.onHandleTableRow("changeLock", true, record._id)
+              }
+              icon={<UnlockOutlined />}
+            />
           )}
           <Button size="small" type="primary" icon={<EyeOutlined />}>
             查看
           </Button>
-          <Button size="small" icon={<EditOutlined />}>
-            编辑
-          </Button>
-          <Button size="small" danger icon={<DeleteOutlined />}>
-            删除
-          </Button>
+          {!record.isLock ? (
+            <>
+              <Button size="small" icon={<EditOutlined />}>
+                编辑
+              </Button>
+              <Popconfirm
+                title="您确定要删除该接口吗?"
+                onConfirm={() => {
+                  props.onHandleTableRow("delete", null, record._id);
+                }}
+                okText="确定"
+                cancelText="不删了"
+              >
+                <Button size="small" danger icon={<DeleteOutlined />}>
+                  删除
+                </Button>
+              </Popconfirm>
+            </>
+          ) : null}
         </Space>
       ),
     },
@@ -273,6 +354,61 @@ function PageTable(props) {
       columns={columns}
       dataSource={props.dataSource}
       rowKey={(record) => record._id}
+      pagination={false}
     />
+  );
+}
+
+function HandleInterface(props) {
+
+  const layout = {
+    labelCol: { span: 8 },
+    wrapperCol: { span: 16 },
+  };
+  const tailLayout = {
+    wrapperCol: { offset: 8, span: 16 },
+  };
+  
+  const onFinish = values => {
+    console.log('Success:', values);
+  };
+
+  const onFinishFailed = errorInfo => {
+    console.log('Failed:', errorInfo);
+  };
+
+  return (
+    <Row>
+      {/* 表单项 */}
+      <Col span={12}>
+        
+        <Form
+          {...layout}
+          name="basic"
+          initialValues={{ remember: true }}
+          onFinish={onFinish}
+          onFinishFailed={onFinishFailed}
+        >
+          <div>
+            
+          </div>
+          <Form.Item
+            name="username"
+            rules={[{ required: true, message: "请输入接口名称!" }]}
+          >
+            <h3>接口名称</h3>
+            <Input />
+          </Form.Item>
+
+          <Form.Item {...tailLayout}>
+            <Button type="primary" htmlType="submit">
+              Submit
+            </Button>
+          </Form.Item>
+        </Form>
+      </Col>
+      {/* 代码编辑与预览 */}
+      <Col span={12}></Col>
+    </Row>
   );
 }

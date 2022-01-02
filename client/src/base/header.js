@@ -20,6 +20,15 @@ function Header(props) {
         <Menu.Item key="2">
           <Link to="/base-data">响应数据维护</Link>
         </Menu.Item>
+        <Menu.Item key="3">
+          <Link to="/prefix">接口前缀维护</Link>
+        </Menu.Item>
+        <Menu.Item key="4">
+          <Link to="/project">项目配置维护</Link>
+        </Menu.Item>
+        <Menu.Item key="5">
+          <Link to="/document">文档说明</Link>
+        </Menu.Item>
       </Menu>
     </Fragment>
   );
