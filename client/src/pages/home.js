@@ -12,7 +12,7 @@ import {
   Drawer,
   Row,
   Col,
-  Title,
+  Radio,
 } from "antd";
 import {
   PlusCircleOutlined,
@@ -25,6 +25,10 @@ import {
   CopyOutlined,
 } from "@ant-design/icons";
 import Axios from "axios";
+import { LoadScript } from "../utils/load-script";
+import { Ace } from "../base/ace";
+
+const { Option } = Select;
 
 export function Home() {
   const [filter, setFilter] = useState({});
@@ -32,6 +36,8 @@ export function Home() {
   const [tableList, setTableList] = useState([]);
 
   const [drawer, setDrawer] = useState(false);
+
+  const [isLoadAce, setIsLoadAce] = useState(false);
 
   const getListData = (name, url, page) => {
     const param = {
@@ -113,6 +119,22 @@ export function Home() {
     }
   }
 
+  LoadScript(["./lib/ace-1.4.4/src/ace.js"])
+    .then(() => {
+      console.log("脚本加载进来了", window.ace);
+      LoadScript([
+        "./lib/ace-1.4.4/src/theme-chrome.js",
+        "./lib/ace-1.4.4/src/mode-json.js",
+        "./lib/ace-1.4.4/src/snippets/json.js",
+        "./lib/ace-1.4.4/src/ext-language_tools.js",
+      ]).then(() => {
+        setIsLoadAce(true);
+      });
+    })
+    .catch((reason) => {
+      console.error(reason);
+    });
+
   return (
     <div>
       <Search
@@ -136,13 +158,25 @@ export function Home() {
       <Drawer
         title="接口说明"
         placement="left"
-        destroyOnClose={false}
+        destroyOnClose={true}
         forceRender={true}
         onClose={() => setDrawer(false)}
         visible={drawer}
         width="80%"
+        footer={
+          <div
+            style={{
+              textAlign: "right",
+            }}
+          >
+            <Button onClick={() => setDrawer(false)} style={{ marginRight: 8 }}>
+              关闭
+            </Button>
+            <Button type="primary">保存</Button>
+          </div>
+        }
       >
-        <HandleInterface></HandleInterface>
+        <HandleInterface isLoadAce={isLoadAce}></HandleInterface>
       </Drawer>
     </div>
   );
@@ -210,8 +244,6 @@ function HandleBtn(props) {
 }
 
 function PageTable(props) {
-  const { Option } = Select;
-
   function handleChange(value, option) {
     props.onHandleTableRow("changeMock", value, option.id);
   }
@@ -360,55 +392,108 @@ function PageTable(props) {
 }
 
 function HandleInterface(props) {
-
   const layout = {
-    labelCol: { span: 8 },
-    wrapperCol: { span: 16 },
-  };
-  const tailLayout = {
-    wrapperCol: { offset: 8, span: 16 },
-  };
-  
-  const onFinish = values => {
-    console.log('Success:', values);
+    labelCol: { span: 0 },
+    wrapperCol: { span: 24 },
   };
 
-  const onFinishFailed = errorInfo => {
-    console.log('Failed:', errorInfo);
+  const onFinish = (values) => {
+    console.log("Success:", values);
+  };
+
+  const onFinishFailed = (errorInfo) => {
+    console.log("Failed:", errorInfo);
   };
 
   return (
     <Row>
       {/* 表单项 */}
-      <Col span={12}>
-        
+      <Col span={12} className="pr-10">
         <Form
           {...layout}
           name="basic"
-          initialValues={{ remember: true }}
+          initialValues={{ method: "GET", prefix: "" }}
           onFinish={onFinish}
           onFinishFailed={onFinishFailed}
         >
-          <div>
-            
-          </div>
+          <h4>接口名称</h4>
           <Form.Item
             name="username"
             rules={[{ required: true, message: "请输入接口名称!" }]}
           >
-            <h3>接口名称</h3>
             <Input />
           </Form.Item>
 
-          <Form.Item {...tailLayout}>
-            <Button type="primary" htmlType="submit">
-              Submit
-            </Button>
+          <h4>接口地址</h4>
+          <Form.Item>
+            <Input.Group compact>
+              <Form.Item
+                name="method"
+                noStyle
+                rules={[{ required: true, message: "请选择请求方式" }]}
+              >
+                <Select style={{ width: "20%" }} placeholder="请选择请求方式">
+                  <Option value="GET">GET</Option>
+                  <Option value="POST">POST</Option>
+                </Select>
+              </Form.Item>
+              <Form.Item
+                name="prefix"
+                noStyle
+                rules={[{ required: true, message: "请选择接口前缀" }]}
+              >
+                <Select
+                  style={{ width: "30%" }}
+                  placeholder="请选择接口前缀"
+                  dropdownMatchSelectWidth={false}
+                >
+                  <Option value="">无接口前缀</Option>
+                  <Option value="/ylh-service-cloud-user-dev">
+                    /ylh-service-cloud-user-dev
+                  </Option>
+                  <Option value="/ylh-service-cloud-goods-dev">
+                    /ylh-service-cloud-goods-dev
+                  </Option>
+                </Select>
+              </Form.Item>
+              <Form.Item
+                name="path"
+                noStyle
+                rules={[{ required: true, message: "请输入接口地址" }]}
+              >
+                <Input style={{ width: "50%" }} placeholder="请输入接口地址" />
+              </Form.Item>
+            </Input.Group>
           </Form.Item>
         </Form>
       </Col>
       {/* 代码编辑与预览 */}
-      <Col span={12}></Col>
+      <Col span={12} className="pl-10">
+        <h4>
+          <span className="mr-10">响应数据</span>
+          <a href="#!" style={{ color: "#6c757d" }}>
+            如何生成随机数据?
+          </a>
+        </h4>
+        <div className="clearfix">
+          <Radio.Group
+            className="float-left"
+            defaultValue="1"
+            size="small"
+            buttonStyle="solid"
+          >
+            <Radio.Button value="1">编辑</Radio.Button>
+            <Radio.Button value="2">预览</Radio.Button>
+          </Radio.Group>
+          <div className="float-right">
+            <Space>
+              <a href="#!">初始基础数据</a>
+              <a href="#!">初始基础分页数据</a>
+            </Space>
+          </div>
+        </div>
+        <div>{props.isLoadAce && <Ace></Ace>}</div>
+      </Col>
     </Row>
   );
 }
