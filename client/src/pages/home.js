@@ -25,7 +25,6 @@ import {
   CopyOutlined,
 } from "@ant-design/icons";
 import Axios from "axios";
-import { LoadScript } from "../utils/load-script";
 import { Ace } from "../base/ace";
 
 const { Option } = Select;
@@ -36,8 +35,6 @@ export function Home() {
   const [tableList, setTableList] = useState([]);
 
   const [drawer, setDrawer] = useState(false);
-
-  const [isLoadAce, setIsLoadAce] = useState(false);
 
   const getListData = (name, url, page) => {
     const param = {
@@ -119,22 +116,6 @@ export function Home() {
     }
   }
 
-  LoadScript(["./lib/ace-1.4.4/src/ace.js"])
-    .then(() => {
-      console.log("脚本加载进来了", window.ace);
-      LoadScript([
-        "./lib/ace-1.4.4/src/theme-chrome.js",
-        "./lib/ace-1.4.4/src/mode-json.js",
-        "./lib/ace-1.4.4/src/snippets/json.js",
-        "./lib/ace-1.4.4/src/ext-language_tools.js",
-      ]).then(() => {
-        setIsLoadAce(true);
-      });
-    })
-    .catch((reason) => {
-      console.error(reason);
-    });
-
   return (
     <div>
       <Search
@@ -176,7 +157,7 @@ export function Home() {
           </div>
         }
       >
-        <HandleInterface isLoadAce={isLoadAce}></HandleInterface>
+        <HandleInterface></HandleInterface>
       </Drawer>
     </div>
   );
@@ -345,15 +326,15 @@ function PageTable(props) {
               />
             </>
           ) : (
-            <Button
-              type="link"
-              size="small"
-              onClick={() =>
-                props.onHandleTableRow("changeLock", true, record._id)
-              }
-              icon={<UnlockOutlined />}
-            />
-          )}
+              <Button
+                type="link"
+                size="small"
+                onClick={() =>
+                  props.onHandleTableRow("changeLock", true, record._id)
+                }
+                icon={<UnlockOutlined />}
+              />
+            )}
           <Button size="small" type="primary" icon={<EyeOutlined />}>
             查看
           </Button>
@@ -408,7 +389,7 @@ function HandleInterface(props) {
   return (
     <Row>
       {/* 表单项 */}
-      <Col span={12} className="pr-10">
+      <Col span={10} className="pr-10">
         <Form
           {...layout}
           name="basic"
@@ -468,7 +449,7 @@ function HandleInterface(props) {
         </Form>
       </Col>
       {/* 代码编辑与预览 */}
-      <Col span={12} className="pl-10">
+      <Col span={14} className="pl-10">
         <h4>
           <span className="mr-10">响应数据</span>
           <a href="#!" style={{ color: "#6c757d" }}>
@@ -492,7 +473,9 @@ function HandleInterface(props) {
             </Space>
           </div>
         </div>
-        <div>{props.isLoadAce && <Ace></Ace>}</div>
+        <div className="pt-10">
+          <Ace></Ace>
+        </div>
       </Col>
     </Row>
   );

@@ -1,6 +1,28 @@
 import React from "react";
+import { LoadScript } from "../utils/load-script";
 
 export class Ace extends React.Component {
+  constructor(props) {
+    super(props);
+    LoadScript([
+      "./lib/ace-1.4.4/src/ace.js",
+      "./lib/ace-1.4.4/src/theme-chrome.js",
+      "./lib/ace-1.4.4/src/mode-json.js",
+      "./lib/ace-1.4.4/src/snippets/json.js",
+      "./lib/ace-1.4.4/src/ext-language_tools.js",
+    ])
+      .then(() => {
+        this.setState({
+          isLoadAce: true
+        })
+      })
+      .catch((reason) => {
+        console.error('>>>>>>', reason);
+      });
+    this.state = {
+      isLoadAce: false
+    }
+  }
   // 启动全屏
   launchFullscreen(element) {
     if (element.requestFullscreen) {
@@ -25,7 +47,8 @@ export class Ace extends React.Component {
     }
   }
 
-  componentDidMount() {
+  initAce() {
+    if (!this.state.isLoadAce || !window.ace) return;
     const owner = this;
     const editor = window.ace.edit("interface-data");
     editor.setTheme("ace/theme/chrome"); //设置主题
@@ -104,11 +127,15 @@ export class Ace extends React.Component {
     editor.getSession().setTabSize(2); // 设置制表符大小
   }
 
+  componentDidUpdate() {
+    this.initAce();
+  }
+
   render() {
     return (
       <div
         id="interface-data"
-        style={{ width: "100%", height: "200px", position: "relative" }}
+        style={{ width: "100%", height: "400px", position: "relative" }}
       ></div>
     );
   }
