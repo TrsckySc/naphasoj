@@ -155,6 +155,7 @@ router.post("/api/get-interface-detail", jsonParser, (req, res) => {
       success: false,
       errorMsg: "缺少接口id",
     });
+    return;
   }
   TodoModal.findById(req.body.id, (err, item) => {
     if (err) throw err;

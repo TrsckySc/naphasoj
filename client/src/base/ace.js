@@ -113,12 +113,10 @@ export class Ace extends React.Component {
       bindKey: { win: "Ctrl-Enter", mac: "Command-Enter" },
       exec: function (editor) {
         var ele = document.getElementById("interface-data");
-        if (editor.isFullScreen) {
+        if (document.isFullScreen || document.mozIsFullScreen || document.webkitIsFullScreen) {
           owner.exitFullscreen();
-          editor.isFullScreen = false;
         } else {
           owner.launchFullscreen(ele);
-          editor.isFullScreen = true;
         }
       },
       readOnly: true, // 只读下设置可以全屏展示

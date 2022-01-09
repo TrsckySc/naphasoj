@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef, useImperativeHandle, forwardRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useImperativeHandle,
+  forwardRef,
+} from "react";
 import {
   Form,
   Input,
@@ -13,6 +19,7 @@ import {
   Row,
   Col,
   Radio,
+  Modal,
 } from "antd";
 import {
   PlusCircleOutlined,
@@ -25,17 +32,25 @@ import {
   CopyOutlined,
 } from "@ant-design/icons";
 import Axios from "axios";
-import JSON5 from "json5"
+import JSON5 from "json5";
 import { Ace } from "../base/ace";
+import { mock } from "mockjs";
 
 const { Option } = Select;
+const { TextArea } = Input;
 
-export function Home() {
+export function Home(props) {
   const [filter, setFilter] = useState({});
 
   const [tableList, setTableList] = useState([]);
 
   const [drawer, setDrawer] = useState(false);
+
+  const [drawerType, setDrawerType] = useState(null);
+
+  const [drawerId, setDrawerId] = useState(null);
+
+  const [projectConfig, setProjectConfig] = useState({});
 
   const getListData = (name, url, page) => {
     const param = {
@@ -44,7 +59,6 @@ export function Home() {
       page: 1,
       rows: 20,
     };
-    console.log(param);
     Axios.post("/api/get-interface-list", param).then((res) => {
       if (res.data.success) {
         setTableList(res.data.data.list);
@@ -59,9 +73,38 @@ export function Home() {
     getListData(filter.name, filter.url, 1);
   }, [filter]);
 
+  useEffect(() => {
+    Axios.get("/api/get-config").then((res) => {
+      if (res.data.success) {
+        setProjectConfig(res.data.data);
+        if (!res.data.data.target) {
+          // 跳转项目配置页面
+          Modal.warning({
+            title: "警告",
+            keyboard: false,
+            centered: true,
+            maskClosable: false,
+            okText: "去设置",
+            content: (
+              <div>
+                <p>检测到你还没有维护代理地址, 请先维护项目代理地址</p>
+              </div>
+            ),
+            onOk() {
+              props.history.push("/project");
+            },
+          });
+        }
+      } else {
+        message.error(res.data.errorMsg);
+      }
+    });
+  }, [setProjectConfig, props.history]);
+
   function handleTableRow(type, value, id) {
     console.log(type, value, id);
     if (type === "changeMock") {
+      // 切换mock状态
       Axios.post("/api/change-interface-mock-status", {
         id,
         isOpen: value === "open",
@@ -83,6 +126,7 @@ export function Home() {
         }
       });
     } else if (type === "changeLock") {
+      // 切换锁
       Axios.post("/api/change-interface-lock-status", {
         id,
         isLock: value,
@@ -106,6 +150,7 @@ export function Home() {
         }
       });
     } else if (type === "delete") {
+      // 删除接口
       Axios.post("/api/delete-interface", {
         id,
       }).then((res) => {
@@ -116,7 +161,29 @@ export function Home() {
         } else {
         }
       });
+    } else if (type === "edit") {
+      // 编辑接口
+      setDrawerType("edit");
+      setDrawerId(id);
+      setDrawer(true);
+    } else if (type === "look") {
+      // 查看接口
+      setDrawerType("look");
+      setDrawerId(id);
+      setDrawer(true);
+    } else if (type === "add") {
+      // 新增接口
+      setDrawerType("add");
+      setDrawerId(null);
+      setDrawer(true);
     }
+  }
+
+  function saveSuccess() {
+    setDrawer(false);
+    setTimeout(() => {
+      getListData(filter.name, filter.url, 1);
+    }, 320);
   }
 
   return (
@@ -131,7 +198,7 @@ export function Home() {
           getListData();
         }}
         openDrawer={() => {
-          setDrawer(true);
+          handleTableRow("add", null, null);
         }}
       ></HandleBtn>
       <PageTable
@@ -140,7 +207,13 @@ export function Home() {
       ></PageTable>
 
       <Drawer
-        title="接口说明"
+        title={
+          drawerType === "add"
+            ? "新增接口"
+            : drawerType === "edit"
+            ? "编辑接口"
+            : "查看接口"
+        }
         placement="left"
         destroyOnClose={true}
         forceRender={true}
@@ -156,11 +229,25 @@ export function Home() {
             <Button onClick={() => setDrawer(false)} style={{ marginRight: 8 }}>
               关闭
             </Button>
-            <Button type="primary" onClick={() => { handleInterfaceRef.current.onFinish() }}>保存</Button>
+            {drawerType !== "look" ? (
+              <Button
+                type="primary"
+                onClick={() => {
+                  handleInterfaceRef.current.onFinish();
+                }}
+              >
+                保存
+              </Button>
+            ) : null}
           </div>
         }
       >
-        <HandleInterface ref={handleInterfaceRef}></HandleInterface>
+        <HandleInterface
+          drawerType={drawerType}
+          drawerId={drawerId}
+          ref={handleInterfaceRef}
+          onSaveSuccess={saveSuccess}
+        ></HandleInterface>
       </Drawer>
     </div>
   );
@@ -228,10 +315,6 @@ function HandleBtn(props) {
 }
 
 function PageTable(props) {
-  function handleChange(value, option) {
-    props.onHandleTableRow("changeMock", value, option.id);
-  }
-
   const mockStatusList = [
     {
       value: "open",
@@ -295,7 +378,9 @@ function PageTable(props) {
             width: 100,
             color: record.isOpen ? "#52c41a" : "#ff4d4f",
           }}
-          onChange={handleChange}
+          onChange={(value) =>
+            props.onHandleTableRow("changeMock", value, record._id)
+          }
         >
           {mockStatusList.map((mockStatus) => {
             return (
@@ -329,21 +414,30 @@ function PageTable(props) {
               />
             </>
           ) : (
-              <Button
-                type="link"
-                size="small"
-                onClick={() =>
-                  props.onHandleTableRow("changeLock", true, record._id)
-                }
-                icon={<UnlockOutlined />}
-              />
-            )}
-          <Button size="small" type="primary" icon={<EyeOutlined />}>
+            <Button
+              type="link"
+              size="small"
+              onClick={() =>
+                props.onHandleTableRow("changeLock", true, record._id)
+              }
+              icon={<UnlockOutlined />}
+            />
+          )}
+          <Button
+            size="small"
+            onClick={() => props.onHandleTableRow("look", null, record._id)}
+            type="primary"
+            icon={<EyeOutlined />}
+          >
             查看
           </Button>
           {!record.isLock ? (
             <>
-              <Button size="small" icon={<EditOutlined />}>
+              <Button
+                size="small"
+                onClick={() => props.onHandleTableRow("edit", null, record._id)}
+                icon={<EditOutlined />}
+              >
                 编辑
               </Button>
               <Popconfirm
@@ -376,41 +470,111 @@ function PageTable(props) {
 }
 
 let HandleInterface = function (props, ref) {
-
   useImperativeHandle(ref, () => ({
     onFinish: () => {
       onFinish();
-    }
+    },
   }));
 
   const aceRef = useRef(null);
 
   const [form] = Form.useForm();
 
-  const layout = {
-    labelCol: { span: 0 },
-    wrapperCol: { span: 24 },
-  };
+  const [isEdit, setIsEdit] = useState(true);
+  const [mockData, setMockData] = useState(null);
+  const [detailFormData, setDetailFormData] = useState({});
+  const [prefixList, setPrefixList] = useState([]);
+
+  useEffect(() => {
+    // 非新增接口查询详情
+    if (props.drawerType && props.drawerType !== "add") {
+      Axios.post("/api/get-interface-detail", { id: props.drawerId }).then(
+        (res) => {
+          if (res.data.success) {
+            const data = {
+              name: res.data.data.name,
+              path: res.data.data.path,
+              method: res.data.data.method,
+              prefix: res.data.data.prefix,
+            };
+            form.setFieldsValue(data);
+            setDetailFormData(data);
+            // 回显json5数据
+            aceRef.current.editor.setValue(
+              JSON5.parse(res.data.data.sourceData)
+            );
+            setMockData(JSON.stringify(mock(res.data.data.data), null, 4));
+          } else {
+            message.error(res.data.errorMsg);
+          }
+        }
+      );
+    }
+  }, [props.drawerType, props.drawerId, form]);
+
+  useEffect(() => {
+    Axios.get("/api/get-prefix-list").then((res) => {
+      if (res.data.success) {
+        setPrefixList(res.data.data);
+      } else {
+        message.error(res.data.errorMsg);
+      }
+    });
+  }, [setPrefixList]);
 
   // 获取响应数据
-  const json5Value = (value) => {
+  const jsonValue = () => {
+    if (!aceRef.current.getValue()) {
+      message.error("请输入响应数据");
+      return false;
+    }
     try {
       return JSON5.parse(aceRef.current.getValue());
     } catch (reason) {
+      console.log(reason);
+      message.error("json 解析出错");
       return false;
     }
-  }
+  };
 
   const onFinish = () => {
-    form.validateFields().then((values) => {
-      console.log(values);
-      const editorValue = json5Value();
-      if (!editorValue) return;
+    form
+      .validateFields()
+      .then((values) => {
+        const jsonData = jsonValue();
+        if (!jsonData) return;
 
-      console.log(editorValue);
-    }).catch((error) => {
-      console.log(error);
-    })
+        const param = {
+          name: values.name,
+          path: values.path,
+          data: mock(jsonData),
+          sourceData: JSON5.stringify(aceRef.current.getValue()),
+          method: values.method,
+          prefix: values.prefix,
+          isOpen: true,
+        };
+
+        let url;
+
+        if (props.drawerId) {
+          url = "/api/update-interface";
+          param.id = props.drawerId;
+        } else {
+          url = "/api/add-interface";
+        }
+
+        Axios.post(url, param).then((res) => {
+          if (res.data.success) {
+            props.onSaveSuccess();
+            message.success("保存成功");
+          } else {
+            message.error(res.data.errorMsg);
+          }
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   return (
@@ -418,75 +582,142 @@ let HandleInterface = function (props, ref) {
       {/* 表单项 */}
       <Col span={10} className="pr-10">
         <Form
-          {...layout}
+          layout={{
+            labelCol: { span: 0 },
+            wrapperCol: { span: 24 },
+          }}
           form={form}
           name="basic"
-          initialValues={{ method: "GET", prefix: "" }}
+          initialValues={{
+            name: "",
+            path: "",
+            method: "GET",
+            prefix: "",
+          }}
         >
           <h4>接口名称</h4>
-          <Form.Item
-            name="username"
-            rules={[{ required: true, message: "请输入接口名称!" }]}
-          >
-            <Input />
-          </Form.Item>
+          {props.drawerType !== "look" ? (
+            <Form.Item
+              name="name"
+              rules={[{ required: true, message: "请输入接口名称!" }]}
+            >
+              <Input autoComplete="off" />
+            </Form.Item>
+          ) : (
+            <ul>
+              <li>{detailFormData.name}</li>
+            </ul>
+          )}
 
           <h4>请求方式</h4>
-          <Form.Item name="method">
-            <Radio.Group buttonStyle="solid">
-              <Radio.Button value="GET">GET</Radio.Button>
-              <Radio.Button value="POST">POST</Radio.Button>
-              <Radio.Button value="PUT">PUT</Radio.Button>
-              <Radio.Button value="DELETE">DELETE</Radio.Button>
-            </Radio.Group>
-          </Form.Item>
+          {props.drawerType !== "look" ? (
+            <Form.Item name="method">
+              <Radio.Group buttonStyle="solid">
+                <Radio value="GET">GET</Radio>
+                <Radio value="POST">POST</Radio>
+                <Radio value="PUT">PUT</Radio>
+                <Radio value="DELETE">DELETE</Radio>
+              </Radio.Group>
+            </Form.Item>
+          ) : (
+            <ul>
+              <li>{detailFormData.method}</li>
+            </ul>
+          )}
+
           <h4>工程前缀</h4>
-          <Form.Item name="prefix">
-            <Select>
-              <Select.Option value="">无接口前缀</Select.Option>
-              <Select.Option value="/ylh-service-exchange-dev">/ylh-service-exchange-dev</Select.Option>
-            </Select>
-          </Form.Item>
+          {props.drawerType !== "look" ? (
+            <Form.Item name="prefix">
+              <Select>
+                <Select.Option value="">无接口前缀</Select.Option>
+                {prefixList.map((prefix) => {
+                  return (
+                    <Select.Option value={prefix.code}>
+                      {prefix.code}
+                    </Select.Option>
+                  );
+                })}
+              </Select>
+            </Form.Item>
+          ) : (
+            <ul>
+              <li>{detailFormData.prefix}</li>
+            </ul>
+          )}
+
           <h4>接口地址</h4>
-          <Form.Item
-            name="path"
-            rules={[{ required: true, message: "请输入接口地址!" }]}
-          >
-            <Input />
-          </Form.Item>
+          {props.drawerType !== "look" ? (
+            <Form.Item
+              name="path"
+              rules={[{ required: true, message: "请输入接口地址!" }]}
+            >
+              <Input autoComplete="off" />
+            </Form.Item>
+          ) : (
+            <ul>
+              <li>{detailFormData.path}</li>
+            </ul>
+          )}
         </Form>
       </Col>
       {/* 代码编辑与预览 */}
       <Col span={14} className="pl-10">
         <h4>
           <span className="mr-10">响应数据</span>
-          <a href="#!" style={{ color: "#6c757d" }}>
-            如何生成随机数据?
-          </a>
+          {props.drawerType !== "look" ? (
+            <a href="#!" style={{ color: "#6c757d" }}>
+              如何生成随机数据?
+            </a>
+          ) : null}
         </h4>
-        <div className="clearfix">
-          <Radio.Group
-            className="float-left"
-            defaultValue="1"
-            size="small"
-            buttonStyle="solid"
-          >
-            <Radio.Button value="1">编辑</Radio.Button>
-            <Radio.Button value="2">预览</Radio.Button>
-          </Radio.Group>
-          <div className="float-right">
-            <Space>
-              <a href="#!">初始基础数据</a>
-              <a href="#!">初始基础分页数据</a>
-            </Space>
+        {props.drawerType !== "look" ? (
+          <div className="clearfix">
+            <Radio.Group
+              className="float-left"
+              defaultValue="1"
+              size="small"
+              buttonStyle="solid"
+              onChange={(e) =>
+                e.target.value === "1" ? setIsEdit(true) : setIsEdit(false)
+              }
+            >
+              <Radio.Button value="1">编辑</Radio.Button>
+              <Radio.Button value="2">预览</Radio.Button>
+            </Radio.Group>
+            <div className="float-right">
+              <Space>
+                <a href="#!">初始基础数据</a>
+                <a href="#!">初始基础分页数据</a>
+              </Space>
+            </div>
           </div>
-        </div>
+        ) : null}
+
         <div className="pt-10">
-          <Ace ref={aceRef}></Ace>
+          <div
+            style={{
+              display: props.drawerType !== "look" && isEdit ? "block" : "none",
+              border: "1px #eee solid",
+            }}
+          >
+            <Ace ref={aceRef}></Ace>
+          </div>
+          <div
+            style={{
+              display:
+                props.drawerType === "look" || !isEdit ? "block" : "none",
+            }}
+          >
+            <TextArea
+              value={mockData}
+              style={{ height: "400px", backgroundColor: "#f2f2f2" }}
+              readOnly
+            />
+          </div>
         </div>
       </Col>
     </Row>
   );
-}
+};
 
 HandleInterface = forwardRef(HandleInterface);

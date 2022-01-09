@@ -17,3 +17,8 @@ code {
 .header{
   background-color: #fff !important;
 }
+
+/* 去掉json编辑器的错误图标 */
+.ace_gutter-cell.ace_error {
+  background-image: none !important;
+}
