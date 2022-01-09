@@ -22,6 +22,7 @@ export class Ace extends React.Component {
     this.state = {
       isLoadAce: false
     }
+    React.forwardRef(this.render);
   }
   // 启动全屏
   launchFullscreen(element) {
@@ -50,7 +51,7 @@ export class Ace extends React.Component {
   initAce() {
     if (!this.state.isLoadAce || !window.ace) return;
     const owner = this;
-    const editor = window.ace.edit("interface-data");
+    const editor = this.editor = window.ace.edit("interface-data");
     editor.setTheme("ace/theme/chrome"); //设置主题
     var JavaScriptMode = window.ace.require("ace/mode/json").Mode;
     editor.session.setMode(new JavaScriptMode()); //设置程序语言模式
@@ -125,6 +126,13 @@ export class Ace extends React.Component {
 
     // editor.getSession().setUseWrapMode(true);//设置折叠 默认折叠的
     editor.getSession().setTabSize(2); // 设置制表符大小
+    // 改变事件
+    editor.getSession().on('change', function (e, a) {
+    });
+  }
+
+  getValue() {
+    return this.editor.getValue();
   }
 
   componentDidUpdate() {

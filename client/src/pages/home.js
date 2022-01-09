@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useImperativeHandle, forwardRef } from "react";
 import {
   Form,
   Input,
@@ -25,6 +25,7 @@ import {
   CopyOutlined,
 } from "@ant-design/icons";
 import Axios from "axios";
+import JSON5 from "json5"
 import { Ace } from "../base/ace";
 
 const { Option } = Select;
@@ -51,6 +52,8 @@ export function Home() {
       }
     });
   };
+
+  const handleInterfaceRef = useRef(null);
 
   useEffect(() => {
     getListData(filter.name, filter.url, 1);
@@ -153,11 +156,11 @@ export function Home() {
             <Button onClick={() => setDrawer(false)} style={{ marginRight: 8 }}>
               关闭
             </Button>
-            <Button type="primary">保存</Button>
+            <Button type="primary" onClick={() => { handleInterfaceRef.current.onFinish() }}>保存</Button>
           </div>
         }
       >
-        <HandleInterface></HandleInterface>
+        <HandleInterface ref={handleInterfaceRef}></HandleInterface>
       </Drawer>
     </div>
   );
@@ -372,18 +375,42 @@ function PageTable(props) {
   );
 }
 
-function HandleInterface(props) {
+let HandleInterface = function (props, ref) {
+
+  useImperativeHandle(ref, () => ({
+    onFinish: () => {
+      onFinish();
+    }
+  }));
+
+  const aceRef = useRef(null);
+
+  const [form] = Form.useForm();
+
   const layout = {
     labelCol: { span: 0 },
     wrapperCol: { span: 24 },
   };
 
-  const onFinish = (values) => {
-    console.log("Success:", values);
-  };
+  // 获取响应数据
+  const json5Value = (value) => {
+    try {
+      return JSON5.parse(aceRef.current.getValue());
+    } catch (reason) {
+      return false;
+    }
+  }
 
-  const onFinishFailed = (errorInfo) => {
-    console.log("Failed:", errorInfo);
+  const onFinish = () => {
+    form.validateFields().then((values) => {
+      console.log(values);
+      const editorValue = json5Value();
+      if (!editorValue) return;
+
+      console.log(editorValue);
+    }).catch((error) => {
+      console.log(error);
+    })
   };
 
   return (
@@ -392,10 +419,9 @@ function HandleInterface(props) {
       <Col span={10} className="pr-10">
         <Form
           {...layout}
+          form={form}
           name="basic"
           initialValues={{ method: "GET", prefix: "" }}
-          onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
         >
           <h4>接口名称</h4>
           <Form.Item
@@ -405,46 +431,28 @@ function HandleInterface(props) {
             <Input />
           </Form.Item>
 
+          <h4>请求方式</h4>
+          <Form.Item name="method">
+            <Radio.Group buttonStyle="solid">
+              <Radio.Button value="GET">GET</Radio.Button>
+              <Radio.Button value="POST">POST</Radio.Button>
+              <Radio.Button value="PUT">PUT</Radio.Button>
+              <Radio.Button value="DELETE">DELETE</Radio.Button>
+            </Radio.Group>
+          </Form.Item>
+          <h4>工程前缀</h4>
+          <Form.Item name="prefix">
+            <Select>
+              <Select.Option value="">无接口前缀</Select.Option>
+              <Select.Option value="/ylh-service-exchange-dev">/ylh-service-exchange-dev</Select.Option>
+            </Select>
+          </Form.Item>
           <h4>接口地址</h4>
-          <Form.Item>
-            <Input.Group compact>
-              <Form.Item
-                name="method"
-                noStyle
-                rules={[{ required: true, message: "请选择请求方式" }]}
-              >
-                <Select style={{ width: "20%" }} placeholder="请选择请求方式">
-                  <Option value="GET">GET</Option>
-                  <Option value="POST">POST</Option>
-                </Select>
-              </Form.Item>
-              <Form.Item
-                name="prefix"
-                noStyle
-                rules={[{ required: true, message: "请选择接口前缀" }]}
-              >
-                <Select
-                  style={{ width: "30%" }}
-                  placeholder="请选择接口前缀"
-                  dropdownMatchSelectWidth={false}
-                >
-                  <Option value="">无接口前缀</Option>
-                  <Option value="/ylh-service-cloud-user-dev">
-                    /ylh-service-cloud-user-dev
-                  </Option>
-                  <Option value="/ylh-service-cloud-goods-dev">
-                    /ylh-service-cloud-goods-dev
-                  </Option>
-                </Select>
-              </Form.Item>
-              <Form.Item
-                name="path"
-                noStyle
-                rules={[{ required: true, message: "请输入接口地址" }]}
-              >
-                <Input style={{ width: "50%" }} placeholder="请输入接口地址" />
-              </Form.Item>
-            </Input.Group>
+          <Form.Item
+            name="path"
+            rules={[{ required: true, message: "请输入接口地址!" }]}
+          >
+            <Input />
           </Form.Item>
         </Form>
       </Col>
@@ -474,9 +482,11 @@ function HandleInterface(props) {
           </div>
         </div>
         <div className="pt-10">
-          <Ace></Ace>
+          <Ace ref={aceRef}></Ace>
         </div>
       </Col>
     </Row>
   );
 }
+
+HandleInterface = forwardRef(HandleInterface);
