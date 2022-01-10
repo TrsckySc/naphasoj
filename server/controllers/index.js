@@ -340,13 +340,13 @@ router.post("/api/add-prefix", jsonParser, (req, res) => {
 
 // 删除前缀数据
 router.post("/api/delete-prefix", jsonParser, (req, res) => {
-  if (!req.body || !req.body.code) {
+  if (!req.body || !req.body.id) {
     res.send({
       success: false,
-      errorMsg: "缺少前缀code",
+      errorMsg: "缺少id",
     });
   }
-  prefixModal.deleteOne({ code: req.body.code }, (err) => {
+  prefixModal.deleteOne({ _id: req.body.id }, (err) => {
     if (err) throw err;
     res.send({
       success: true,
