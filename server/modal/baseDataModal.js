@@ -4,7 +4,7 @@ var baseDataSchemas = mongoose.Schema({
   name: String,                       // 基础数据名称
   data: Object,                       // 基础数据
   aceData: String,                    // ace源数据
-  type: String,                       // 基础数据类型
+  remark: String,                       // 备注说明
 }, { minimize: false });
 
 var BaseDataModal = mongoose.model('baseData', baseDataSchemas);

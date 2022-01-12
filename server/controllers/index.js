@@ -272,6 +272,7 @@ router.post("/api/update-base-data", jsonParser, (req, res) => {
       if (err) throw err;
       item.aceData = req.body.aceData;
       item.data = req.body.data;
+      item.remark = req.body.remark;
 
       item.save((err) => {
         if (err) throw err;
@@ -281,6 +282,22 @@ router.post("/api/update-base-data", jsonParser, (req, res) => {
       });
     });
   }
+});
+
+// 删除单个基础数据
+router.post("/api/delete-base-data", jsonParser, (req, res) => {
+  if (!req.body || !req.body.id) {
+    res.send({
+      success: false,
+      errorMsg: "缺少id",
+    });
+  }
+  BaseDataModal.deleteOne({ _id: req.body.id }, (err) => {
+    if (err) throw err;
+    res.send({
+      success: true,
+    });
+  });
 });
 
 // 查询单个基础数据

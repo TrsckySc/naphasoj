@@ -102,7 +102,6 @@ export function Home(props) {
   }, [setProjectConfig, props.history]);
 
   function handleTableRow(type, value, id) {
-    console.log(type, value, id);
     if (type === "changeMock") {
       // 切换mock状态
       Axios.post("/api/change-interface-mock-status", {
@@ -632,7 +631,7 @@ let HandleInterface = function (props, ref) {
                 <Select.Option value="">无接口前缀</Select.Option>
                 {prefixList.map((prefix) => {
                   return (
-                    <Select.Option value={prefix.code}>
+                    <Select.Option value={prefix.code} key={prefix.code}>
                       {prefix.code}
                     </Select.Option>
                   );
@@ -700,7 +699,7 @@ let HandleInterface = function (props, ref) {
               border: "1px #eee solid",
             }}
           >
-            <Ace ref={aceRef}></Ace>
+            <Ace ref={aceRef} height="400px"></Ace>
           </div>
           <div
             style={{
