@@ -30,6 +30,7 @@ import {
   LockOutlined,
   UnlockOutlined,
   CopyOutlined,
+  ExclamationCircleOutlined,
 } from "@ant-design/icons";
 import Axios from "axios";
 import JSON5 from "json5";
@@ -185,6 +186,26 @@ export function Home(props) {
     }, 320);
   }
 
+  const deleteAllInterface = () => {
+    Modal.confirm({
+      title: "您确认要删除所有接口？",
+      content: "已经被锁定的接口不会被删除",
+      icon: <ExclamationCircleOutlined />,
+      okType: "danger",
+      okText: "删除",
+      onOk() {
+        Axios.get("/api/delete-all-interface").then((res) => {
+          if (res.data.success) {
+            message.success("已成功清空所有未被锁定的接口");
+            getListData(filter.name, filter.url, 1);
+          } else {
+            message.error(res.data.errorMsg);
+          }
+        });
+      },
+    });
+  };
+
   return (
     <div>
       <Search
@@ -199,6 +220,7 @@ export function Home(props) {
         openDrawer={() => {
           handleTableRow("add", null, null);
         }}
+        deleteAllInterface={deleteAllInterface}
       ></HandleBtn>
       <PageTable
         dataSource={tableList}
@@ -305,7 +327,11 @@ function HandleBtn(props) {
         </Button>
       </div>
       <div style={{ float: "right" }}>
-        <Button danger icon={<DeleteOutlined />}>
+        <Button
+          danger
+          onClick={() => props.deleteAllInterface()}
+          icon={<DeleteOutlined />}
+        >
           清空当前所有接口
         </Button>
       </div>
@@ -483,6 +509,7 @@ let HandleInterface = function (props, ref) {
   const [mockData, setMockData] = useState(null);
   const [detailFormData, setDetailFormData] = useState({});
   const [prefixList, setPrefixList] = useState([]);
+  const [baseDataList, setBaseDataList] = useState([]);
 
   useEffect(() => {
     // 非新增接口查询详情
@@ -519,7 +546,20 @@ let HandleInterface = function (props, ref) {
         message.error(res.data.errorMsg);
       }
     });
-  }, [setPrefixList]);
+    Axios.get("/api/get-base-list").then((res) => {
+      if (res.data.success) {
+        setBaseDataList(res.data.data);
+      } else {
+        message.error(res.data.errorMsg);
+      }
+    });
+  }, [setPrefixList, setBaseDataList]);
+
+  const changeBaseData = (index) => {
+    aceRef.current.editor.setValue(
+      JSON.stringify(baseDataList[index].data, null, 2)
+    );
+  };
 
   // 获取响应数据
   const jsonValue = () => {
@@ -681,13 +721,24 @@ let HandleInterface = function (props, ref) {
               }
             >
               <Radio.Button value="1">编辑</Radio.Button>
-              <Radio.Button value="2">预览</Radio.Button>
+              <Radio.Button value="2">预览1</Radio.Button>
             </Radio.Group>
             <div className="float-right">
-              <Space>
-                <a href="#!">初始基础数据</a>
-                <a href="#!">初始基础分页数据</a>
-              </Space>
+              <Select
+                defaultValue=""
+                style={{ width: 200 }}
+                size="small"
+                onChange={changeBaseData}
+              >
+                <Option value="">响应数据快捷模板</Option>
+                {baseDataList.map((baseData, index) => {
+                  return (
+                    <Option value={index} title={baseData.name} key={index}>
+                      {baseData.name}
+                    </Option>
+                  );
+                })}
+              </Select>
             </div>
           </div>
         ) : null}

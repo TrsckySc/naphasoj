@@ -148,6 +148,8 @@ export class Ace extends React.Component {
           width: "100%",
           height: this.props.height || "300px",
           position: "relative",
+          lineHeight: "1.5",
+          fontSize: "14px",
         }}
       ></div>
     );
