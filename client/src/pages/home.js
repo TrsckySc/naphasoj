@@ -36,6 +36,7 @@ import Axios from "axios";
 import JSON5 from "json5";
 import { Ace } from "../base/ace";
 import { mock } from "mockjs";
+import { copyText } from "../utils/copy";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -385,7 +386,7 @@ function PageTable(props) {
       key: "path",
       render: (text) => (
         <>
-          <CopyOutlined className="pr-10" />
+          <CopyOutlined onClick={()=>copyText(text)} className="pr-10" />
           <span>{text}</span>
         </>
       ),
@@ -557,7 +558,7 @@ let HandleInterface = function (props, ref) {
 
   const changeBaseData = (index) => {
     aceRef.current.editor.setValue(
-      JSON.stringify(baseDataList[index].data, null, 2)
+      index === '' ? '' : JSON.stringify(baseDataList[index].data, null, 2)
     );
   };
 
@@ -721,16 +722,17 @@ let HandleInterface = function (props, ref) {
               }
             >
               <Radio.Button value="1">编辑</Radio.Button>
-              <Radio.Button value="2">预览1</Radio.Button>
+              <Radio.Button value="2">预览</Radio.Button>
             </Radio.Group>
             <div className="float-right">
+              <span className="mr-10">快捷数据模版:</span>
               <Select
                 defaultValue=""
                 style={{ width: 200 }}
                 size="small"
                 onChange={changeBaseData}
               >
-                <Option value="">响应数据快捷模板</Option>
+                <Option value="">不使用响应数据模版</Option>
                 {baseDataList.map((baseData, index) => {
                   return (
                     <Option value={index} title={baseData.name} key={index}>
@@ -747,7 +749,6 @@ let HandleInterface = function (props, ref) {
           <div
             style={{
               display: props.drawerType !== "look" && isEdit ? "block" : "none",
-              border: "1px #eee solid",
             }}
           >
             <Ace ref={aceRef} height="400px"></Ace>

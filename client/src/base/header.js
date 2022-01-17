@@ -13,7 +13,7 @@ function Header(props) {
   return (
     <Fragment>
       <div style={{ float: 'left', fontSize: '20px', marginRight: '20px', height: '64px' }} >SNAKE-API <small>mini</small></div>
-      <Menu mode="horizontal" defaultSelectedKeys={[count]}>
+      <Menu mode="horizontal" defaultSelectedKeys={[count]} className="float-left">
         <Menu.Item key="1">
           <Link to="/">接口列表</Link>
         </Menu.Item>
@@ -30,6 +30,12 @@ function Header(props) {
           <Link to="/document">文档说明</Link>
         </Menu.Item>
       </Menu>
+      <div className="float-right">
+        <a href="https://www.snake-api.com" rel="noopener noreferrer" target="_blank" className="mr-20">SNAKE-API 官网</a>
+        <a href="https://gitee.com/seebin/mock-data/" rel="noopener noreferrer" target="_blank">
+          <img src='https://gitee.com/seebin/mock-data/badge/star.svg?theme=dark' alt='star'></img>
+        </a>
+      </div>
     </Fragment>
   );
 }

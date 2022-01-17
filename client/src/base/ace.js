@@ -150,6 +150,7 @@ export class Ace extends React.Component {
           position: "relative",
           lineHeight: "1.5",
           fontSize: "14px",
+          border: "1px #eee solid",
         }}
       ></div>
     );

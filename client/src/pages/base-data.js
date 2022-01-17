@@ -191,7 +191,12 @@ export function BaseData() {
         title="新增响应数据"
         visible={visible}
         onOk={handleOk}
-        onCancel={() => setVisible(false)}
+        onCancel={() => {
+          form.resetFields();
+          setConfirmLoading(false);
+          aceRef.current.editor.setValue("");
+          setVisible(false);
+        }}
         centered={true}
         confirmLoading={confirmLoading}
         forceRender={true}
