@@ -4,6 +4,7 @@ import React, {
   useRef,
   useImperativeHandle,
   forwardRef,
+  useCallback,
 } from "react";
 import {
   Form,
@@ -75,7 +76,7 @@ export function Home(props) {
     getListData(filter.name, filter.url, 1);
   }, [filter]);
 
-  useEffect(() => {
+  const updateProjectConfig = useCallback(() => {
     Axios.get("/api/get-config").then((res) => {
       if (res.data.success) {
         setProjectConfig(res.data.data);
@@ -101,7 +102,11 @@ export function Home(props) {
         message.error(res.data.errorMsg);
       }
     });
-  }, [setProjectConfig, props.history]);
+  }, [setProjectConfig, props.history])
+
+  useEffect(() => {
+    updateProjectConfig();
+  }, [updateProjectConfig]);
 
   function handleTableRow(type, value, id) {
     if (type === "changeMock") {
@@ -111,7 +116,7 @@ export function Home(props) {
         isOpen: value === "open",
       }).then((res) => {
         if (res.data.success) {
-          message.success(value === "open" ? "成功启用" : "接口已停用");
+          message.success(value === "open" ? "Mock状态开启成功,你可以使用Mock数据了" : "Mock状态已停用,你可以使用真实的接口数据了");
           const table = tableList.map((data) => {
             if (id === data._id) {
               return Object.assign(data, {
@@ -213,6 +218,8 @@ export function Home(props) {
         onSearch={(values) => {
           setFilter(values);
         }}
+        projectConfig={projectConfig}
+        updateProjectConfig={updateProjectConfig}
       ></Search>
       <HandleBtn
         initSearch={() => {
@@ -233,8 +240,8 @@ export function Home(props) {
           drawerType === "add"
             ? "新增接口"
             : drawerType === "edit"
-            ? "编辑接口"
-            : "查看接口"
+              ? "编辑接口"
+              : "查看接口"
         }
         placement="left"
         destroyOnClose={true}
@@ -288,27 +295,77 @@ function Search(props) {
     props.onSearch(values);
   };
 
+  const updateConfig = () => {
+    Axios.post("/api/update-config-mock", {
+      id: props.projectConfig._id,
+      mock: !props.projectConfig.mock
+    }).then((res) => {
+      if (res.data.success) {
+        message.success(!props.projectConfig.mock ? '已启用项目Mock功能' : "已停用项目Mock功能");
+        props.updateProjectConfig()
+      } else {
+        message.error(res.data.errorMsg);
+      }
+    });
+  }
+
+  const changeMock = () => {
+    if (props.projectConfig.mock) {
+      Modal.confirm({
+        title: "您确认要停用Mock功能吗？",
+        content: "设置后所有Mock接口将不可用, 服务只保留反向代理功能",
+        icon: <ExclamationCircleOutlined />,
+        okType: "danger",
+        onOk() {
+          updateConfig()
+        },
+      });
+    } else {
+      updateConfig()
+    }
+
+  };
+
   return (
-    <Form
-      form={form}
-      name="horizontal_login"
-      layout="inline"
-      onFinish={onFinish}
-    >
-      <Form.Item name="name">
-        <Input placeholder="请输入接口名称" />
-      </Form.Item>
-      <Form.Item name="url">
-        <Input placeholder="请输入接口地址" />
-      </Form.Item>
-      <Form.Item shouldUpdate={true}>
-        {() => (
-          <Button type="primary" htmlType="submit">
-            查 询
-          </Button>
-        )}
-      </Form.Item>
-    </Form>
+    <div className="clearfix">
+      <Form
+        form={form}
+        name="horizontal_login"
+        layout="inline"
+        onFinish={onFinish}
+        className="float-left"
+      >
+        <Form.Item name="name">
+          <Input placeholder="请输入接口名称" />
+        </Form.Item>
+        <Form.Item name="url">
+          <Input placeholder="请输入接口地址" />
+        </Form.Item>
+        <Form.Item shouldUpdate={true}>
+          {() => (
+            <Button type="primary" htmlType="submit">
+              查 询
+            </Button>
+          )}
+        </Form.Item>
+      </Form>
+      <div className="float-right cursor-pointer" style={{ color: props.projectConfig.mock ? '#28a745' : '#dc3545' }} onClick={() => changeMock()}>
+        <span style={{
+          display: 'inline-block',
+          width: '8px',
+          height: '8px',
+          borderRadius: '4px',
+          marginRight: '5px',
+          backgroundColor: props.projectConfig.mock ? '#28a745' : '#dc3545'
+        }}></span>
+        {props.projectConfig.mock ? (
+          <span>Mock 启用中...</span>
+        ) : (
+            <span>Mock 停用中...</span>
+          )
+        }
+      </div>
+    </div>
   );
 }
 
@@ -386,7 +443,7 @@ function PageTable(props) {
       key: "path",
       render: (text) => (
         <>
-          <CopyOutlined onClick={()=>copyText(text)} className="pr-10" />
+          <CopyOutlined onClick={() => copyText(text)} className="pr-10" />
           <span>{text}</span>
         </>
       ),
@@ -440,15 +497,15 @@ function PageTable(props) {
               />
             </>
           ) : (
-            <Button
-              type="link"
-              size="small"
-              onClick={() =>
-                props.onHandleTableRow("changeLock", true, record._id)
-              }
-              icon={<UnlockOutlined />}
-            />
-          )}
+              <Button
+                type="link"
+                size="small"
+                onClick={() =>
+                  props.onHandleTableRow("changeLock", true, record._id)
+                }
+                icon={<UnlockOutlined />}
+              />
+            )}
           <Button
             size="small"
             onClick={() => props.onHandleTableRow("look", null, record._id)}
@@ -644,10 +701,10 @@ let HandleInterface = function (props, ref) {
               <Input autoComplete="off" />
             </Form.Item>
           ) : (
-            <ul>
-              <li>{detailFormData.name}</li>
-            </ul>
-          )}
+              <ul>
+                <li>{detailFormData.name}</li>
+              </ul>
+            )}
 
           <h4>请求方式</h4>
           {props.drawerType !== "look" ? (
@@ -660,10 +717,10 @@ let HandleInterface = function (props, ref) {
               </Radio.Group>
             </Form.Item>
           ) : (
-            <ul>
-              <li>{detailFormData.method}</li>
-            </ul>
-          )}
+              <ul>
+                <li>{detailFormData.method}</li>
+              </ul>
+            )}
 
           <h4>工程前缀</h4>
           {props.drawerType !== "look" ? (
@@ -680,10 +737,10 @@ let HandleInterface = function (props, ref) {
               </Select>
             </Form.Item>
           ) : (
-            <ul>
-              <li>{detailFormData.prefix}</li>
-            </ul>
-          )}
+              <ul>
+                <li>{detailFormData.prefix}</li>
+              </ul>
+            )}
 
           <h4>接口地址</h4>
           {props.drawerType !== "look" ? (
@@ -694,10 +751,10 @@ let HandleInterface = function (props, ref) {
               <Input autoComplete="off" />
             </Form.Item>
           ) : (
-            <ul>
-              <li>{detailFormData.path}</li>
-            </ul>
-          )}
+              <ul>
+                <li>{detailFormData.path}</li>
+              </ul>
+            )}
         </Form>
       </Col>
       {/* 代码编辑与预览 */}

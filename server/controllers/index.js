@@ -129,6 +129,7 @@ router.post("/api/delete-interface", jsonParser, (req, res) => {
       success: false,
       errorMsg: "缺少接口id",
     });
+    return;
   }
   TodoModal.deleteOne({ _id: req.body.id }, (err) => {
     if (err) throw err;
@@ -173,6 +174,7 @@ router.post("/api/update-interface", jsonParser, (req, res) => {
       success: false,
       errorMsg: "缺少接口id",
     });
+    return;
   }
   TodoModal.findById(req.body.id, (err, item) => {
     if (err) throw err;
@@ -200,6 +202,7 @@ router.post("/api/change-interface-mock-status", jsonParser, (req, res) => {
       success: false,
       errorMsg: "缺少接口id",
     });
+    return;
   }
   TodoModal.findById(req.body.id, (err, item) => {
     if (err) throw err;
@@ -220,6 +223,7 @@ router.post("/api/change-interface-lock-status", jsonParser, (req, res) => {
       success: false,
       errorMsg: "缺少接口id",
     });
+    return;
   }
   if (
     req.body.isLock === undefined ||
@@ -291,6 +295,7 @@ router.post("/api/delete-base-data", jsonParser, (req, res) => {
       success: false,
       errorMsg: "缺少id",
     });
+    return;
   }
   BaseDataModal.deleteOne({ _id: req.body.id }, (err) => {
     if (err) throw err;
@@ -307,6 +312,7 @@ router.post("/api/get-base-data-by-id", jsonParser, (req, res) => {
       success: false,
       errorMsg: "缺少接口id",
     });
+    return;
   }
   BaseDataModal.findById(req.body.id, (err, item) => {
     if (err) throw err;
@@ -362,6 +368,7 @@ router.post("/api/delete-prefix", jsonParser, (req, res) => {
       success: false,
       errorMsg: "缺少id",
     });
+    return;
   }
   prefixModal.deleteOne({ _id: req.body.id }, (err) => {
     if (err) throw err;
