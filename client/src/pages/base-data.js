@@ -180,6 +180,7 @@ export function BaseData() {
         >
           新增
         </Button>
+        <span className="float-right">设置响应数据, 可在新建接口时快捷选择对应的数据模版显示在编辑器内</span>
       </div>
       <Table
         dataSource={dataSource}

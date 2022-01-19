@@ -1,8 +1,8 @@
 module.exports = {
   // mongodb链接地址-docker版
-  // mongodb: "mongodb://database/myapp",
+  mongodb: "mongodb://database/myapp",
   // mongodb链接地址-本地版
-  mongodb: 'mongodb://localhost/myapp',
+  // mongodb: 'mongodb://localhost/myapp',
 
   // mock工程端口设置
   port: 3004,

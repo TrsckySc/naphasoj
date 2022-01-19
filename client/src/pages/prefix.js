@@ -105,6 +105,7 @@ export function Prefix() {
         <Button type="primary" onClick={() => setVisible(true)}>
           新增
         </Button>
+        <span className="float-right">本页面删除前缀不会影响现有接口在用的前缀, 只会影响新增或编辑接口时可选的前缀列表选项</span>
       </div>
       <Table
         dataSource={dataSource}
