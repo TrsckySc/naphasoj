@@ -21,6 +21,9 @@ import {
   Col,
   Radio,
   Modal,
+  Collapse,
+  Checkbox,
+  Tabs,
 } from "antd";
 import {
   PlusCircleOutlined,
@@ -32,6 +35,8 @@ import {
   UnlockOutlined,
   CopyOutlined,
   ExclamationCircleOutlined,
+  GlobalOutlined,
+  UploadOutlined,
 } from "@ant-design/icons";
 import Axios from "axios";
 import JSON5 from "json5";
@@ -41,6 +46,8 @@ import { copyText } from "../utils/copy";
 
 const { Option } = Select;
 const { TextArea } = Input;
+const { Panel } = Collapse;
+const { TabPane } = Tabs;
 
 export function Home(props) {
   const [filter, setFilter] = useState({});
@@ -102,7 +109,7 @@ export function Home(props) {
         message.error(res.data.errorMsg);
       }
     });
-  }, [setProjectConfig, props.history])
+  }, [setProjectConfig, props.history]);
 
   useEffect(() => {
     updateProjectConfig();
@@ -116,7 +123,11 @@ export function Home(props) {
         isOpen: value === "open",
       }).then((res) => {
         if (res.data.success) {
-          message.success(value === "open" ? "Mock状态开启成功,你可以使用Mock数据了" : "Mock状态已停用,你可以使用真实的接口数据了");
+          message.success(
+            value === "open"
+              ? "Mock状态开启成功,你可以使用Mock数据了"
+              : "Mock状态已停用,你可以使用真实的接口数据了"
+          );
           const table = tableList.map((data) => {
             if (id === data._id) {
               return Object.assign(data, {
@@ -240,8 +251,8 @@ export function Home(props) {
           drawerType === "add"
             ? "新增接口"
             : drawerType === "edit"
-              ? "编辑接口"
-              : "查看接口"
+            ? "编辑接口"
+            : "查看接口"
         }
         placement="left"
         destroyOnClose={true}
@@ -268,6 +279,7 @@ export function Home(props) {
                 保存
               </Button>
             ) : null}
+            (
           </div>
         }
       >
@@ -298,16 +310,20 @@ function Search(props) {
   const updateConfig = () => {
     Axios.post("/api/update-config-mock", {
       id: props.projectConfig._id,
-      mock: !props.projectConfig.mock
+      mock: !props.projectConfig.mock,
     }).then((res) => {
       if (res.data.success) {
-        message.success(!props.projectConfig.mock ? '已启用项目Mock功能' : "已停用项目Mock功能");
-        props.updateProjectConfig()
+        message.success(
+          !props.projectConfig.mock
+            ? "已启用项目Mock功能"
+            : "已停用项目Mock功能"
+        );
+        props.updateProjectConfig();
       } else {
         message.error(res.data.errorMsg);
       }
     });
-  }
+  };
 
   const changeMock = () => {
     if (props.projectConfig.mock) {
@@ -317,13 +333,12 @@ function Search(props) {
         icon: <ExclamationCircleOutlined />,
         okType: "danger",
         onOk() {
-          updateConfig()
+          updateConfig();
         },
       });
     } else {
-      updateConfig()
+      updateConfig();
     }
-
   };
 
   return (
@@ -349,27 +364,40 @@ function Search(props) {
           )}
         </Form.Item>
       </Form>
-      <div className="float-right cursor-pointer" style={{ color: props.projectConfig.mock ? '#28a745' : '#dc3545' }} onClick={() => changeMock()}>
-        <span style={{
-          display: 'inline-block',
-          width: '8px',
-          height: '8px',
-          borderRadius: '4px',
-          marginRight: '5px',
-          backgroundColor: props.projectConfig.mock ? '#28a745' : '#dc3545'
-        }}></span>
+      <div
+        className="float-right cursor-pointer"
+        style={{ color: props.projectConfig.mock ? "#28a745" : "#dc3545" }}
+        onClick={() => changeMock()}
+      >
+        <span
+          style={{
+            display: "inline-block",
+            width: "8px",
+            height: "8px",
+            borderRadius: "4px",
+            marginRight: "5px",
+            backgroundColor: props.projectConfig.mock ? "#28a745" : "#dc3545",
+          }}
+        ></span>
         {props.projectConfig.mock ? (
           <span>Mock 启用中...</span>
         ) : (
-            <span>Mock 停用中...</span>
-          )
-        }
+          <span>Mock 停用中...</span>
+        )}
       </div>
     </div>
   );
 }
 
 function HandleBtn(props) {
+  const [drawer, setDrawer] = useState(false);
+  const confirmImport = () => {
+    // 导入
+
+    props.initSearch();
+  };
+  const onChangeTag = (e) => {};
+  const stopPropagation = (e) => e.stopPropagation();
   return (
     <div className="pt-20 pb-20 clearfix">
       <div style={{ float: "left" }}>
@@ -380,7 +408,12 @@ function HandleBtn(props) {
         >
           新建接口
         </Button>
-        <Button type="dashed" icon={<ImportOutlined />} className="ml-20">
+        <Button
+          onClick={() => setDrawer(true)}
+          type="dashed"
+          icon={<ImportOutlined />}
+          className="ml-20"
+        >
           导入Swagger 接口
         </Button>
       </div>
@@ -393,6 +426,97 @@ function HandleBtn(props) {
           清空当前所有接口
         </Button>
       </div>
+      <Drawer
+        title="导入 Swagger API 接口"
+        placement="left"
+        destroyOnClose={true}
+        forceRender={true}
+        onClose={() => setDrawer(false)}
+        visible={drawer}
+        width="80%"
+        footer={
+          <div
+            style={{
+              textAlign: "right",
+            }}
+          >
+            <Button onClick={() => setDrawer(false)} style={{ marginRight: 8 }}>
+              关闭
+            </Button>
+            <Button
+              type="primary"
+              onClick={() => {
+                confirmImport();
+              }}
+            >
+              确认导入
+            </Button>
+          </div>
+        }
+      >
+        <div>
+          <Tabs defaultActiveKey="2">
+            <TabPane
+              tab={
+                <span>
+                  <GlobalOutlined />
+                  URL 导入
+                </span>
+              }
+              key="1"
+            >
+              URL 导入
+            </TabPane>
+            <TabPane
+              tab={
+                <span>
+                  <UploadOutlined />
+                  FILE 导入
+                </span>
+              }
+              key="2"
+            >
+              FILE 导入
+            </TabPane>
+          </Tabs>
+        </div>
+        <div className="pt-20">
+          <Collapse defaultActiveKey={["1"]} expandIconPosition="left">
+            <Panel
+              header={
+                <Checkbox onChange={onChangeTag} onClick={stopPropagation}>
+                  <span onClick={stopPropagation}>Checkbox</span>
+                </Checkbox>
+              }
+              key="1"
+            >
+              <ul className="m-0" style={{ padding: "0 24px" }}>
+                <li
+                  style={{
+                    padding: "10px 0",
+                    listStyle: "none",
+                    borderBottom: "1px #eee solid",
+                  }}
+                >
+                  <Checkbox onChange={onChangeTag} onClick={stopPropagation}>
+                    Checkbox
+                  </Checkbox>
+                </li>
+                <li
+                  style={{
+                    padding: "10px 0",
+                    listStyle: "none",
+                  }}
+                >
+                  <Checkbox onChange={onChangeTag} onClick={stopPropagation}>
+                    Checkbox
+                  </Checkbox>
+                </li>
+              </ul>
+            </Panel>
+          </Collapse>
+        </div>
+      </Drawer>
     </div>
   );
 }
@@ -497,15 +621,15 @@ function PageTable(props) {
               />
             </>
           ) : (
-              <Button
-                type="link"
-                size="small"
-                onClick={() =>
-                  props.onHandleTableRow("changeLock", true, record._id)
-                }
-                icon={<UnlockOutlined />}
-              />
-            )}
+            <Button
+              type="link"
+              size="small"
+              onClick={() =>
+                props.onHandleTableRow("changeLock", true, record._id)
+              }
+              icon={<UnlockOutlined />}
+            />
+          )}
           <Button
             size="small"
             onClick={() => props.onHandleTableRow("look", null, record._id)}
@@ -615,7 +739,7 @@ let HandleInterface = function (props, ref) {
 
   const changeBaseData = (index) => {
     aceRef.current.editor.setValue(
-      index === '' ? '' : JSON.stringify(baseDataList[index].data, null, 2)
+      index === "" ? "" : JSON.stringify(baseDataList[index].data, null, 2)
     );
   };
 
@@ -701,10 +825,10 @@ let HandleInterface = function (props, ref) {
               <Input autoComplete="off" />
             </Form.Item>
           ) : (
-              <ul>
-                <li>{detailFormData.name}</li>
-              </ul>
-            )}
+            <ul>
+              <li>{detailFormData.name}</li>
+            </ul>
+          )}
 
           <h4>请求方式</h4>
           {props.drawerType !== "look" ? (
@@ -717,10 +841,10 @@ let HandleInterface = function (props, ref) {
               </Radio.Group>
             </Form.Item>
           ) : (
-              <ul>
-                <li>{detailFormData.method}</li>
-              </ul>
-            )}
+            <ul>
+              <li>{detailFormData.method}</li>
+            </ul>
+          )}
 
           <h4>工程前缀</h4>
           {props.drawerType !== "look" ? (
@@ -737,10 +861,10 @@ let HandleInterface = function (props, ref) {
               </Select>
             </Form.Item>
           ) : (
-              <ul>
-                <li>{detailFormData.prefix}</li>
-              </ul>
-            )}
+            <ul>
+              <li>{detailFormData.prefix}</li>
+            </ul>
+          )}
 
           <h4>接口地址</h4>
           {props.drawerType !== "look" ? (
@@ -751,10 +875,10 @@ let HandleInterface = function (props, ref) {
               <Input autoComplete="off" />
             </Form.Item>
           ) : (
-              <ul>
-                <li>{detailFormData.path}</li>
-              </ul>
-            )}
+            <ul>
+              <li>{detailFormData.path}</li>
+            </ul>
+          )}
         </Form>
       </Col>
       {/* 代码编辑与预览 */}

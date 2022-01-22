@@ -10,6 +10,10 @@
   clear: both;
 }
 
+.p-0 {
+  padding: 0;
+}
+
 .p-10 {
   padding: 10px;
 }
@@ -48,6 +52,10 @@
 
 .pr-20 {
   padding-right: 20px;
+}
+
+.m-0 {
+  margin: 0;
 }
 
 .m-10 {
