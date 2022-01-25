@@ -24,6 +24,7 @@ import {
   Collapse,
   Checkbox,
   Tabs,
+  Upload,
 } from "antd";
 import {
   PlusCircleOutlined,
@@ -37,12 +38,15 @@ import {
   ExclamationCircleOutlined,
   GlobalOutlined,
   UploadOutlined,
+  FileTextOutlined,
 } from "@ant-design/icons";
 import Axios from "axios";
 import JSON5 from "json5";
 import { Ace } from "../base/ace";
 import { mock } from "mockjs";
 import { copyText } from "../utils/copy";
+import Swagger from "swagger-client";
+import { swaggerHandle } from "../utils/swagger-handle";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -391,6 +395,10 @@ function Search(props) {
 
 function HandleBtn(props) {
   const [drawer, setDrawer] = useState(false);
+  const [urlForm] = Form.useForm();
+  const [fileForm] = Form.useForm();
+  const [dataList, setDataList] = useState([]);
+  const [fileName, setFileName] = useState([]);
   const confirmImport = () => {
     // 导入
 
@@ -398,6 +406,44 @@ function HandleBtn(props) {
   };
   const onChangeTag = (e) => {};
   const stopPropagation = (e) => e.stopPropagation();
+
+  const onFinish = (values, type) => {
+    if (type === "url") {
+      // url 导入
+      Swagger(values.url).then((swaggerData) => {
+        if (JSON.stringify(swaggerData.spec) === "{}") {
+          message.error("该地址不是标准的JSON数据结构");
+          return;
+        }
+        setDataList(swaggerHandle(swaggerData.spec));
+      });
+    } else {
+      // 文件导入
+      var reader = new FileReader();
+      reader.readAsText(values.file.file);
+      reader.onload = (res) => {
+        try {
+          res = JSON.parse(res.target.result);
+
+          Swagger({
+            spec: res,
+          }).then(function (swaggerData) {
+            if (JSON.stringify(swaggerData.spec) === "{}") {
+              message.error("该地址不是标准的JSON数据结构");
+              return;
+            }
+            setDataList(swaggerHandle(swaggerData.spec));
+          });
+        } catch (e) {
+          console.error("json 解析出错", e.message);
+        }
+      };
+    }
+  };
+
+  const onFileChange = (value) => {
+    setFileName(value.file.name);
+  };
   return (
     <div className="pt-20 pb-20 clearfix">
       <div style={{ float: "left" }}>
@@ -465,7 +511,25 @@ function HandleBtn(props) {
               }
               key="1"
             >
-              URL 导入
+              <Form
+                layout="inline"
+                form={urlForm}
+                name="control-hooks"
+                onFinish={(values) => onFinish(values, "url")}
+              >
+                <Form.Item
+                  name="url"
+                  label="swagger json 地址"
+                  rules={[{ required: true }]}
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item>
+                  <Button type="primary" htmlType="submit">
+                    获取
+                  </Button>
+                </Form.Item>
+              </Form>
             </TabPane>
             <TabPane
               tab={
@@ -476,44 +540,81 @@ function HandleBtn(props) {
               }
               key="2"
             >
-              FILE 导入
+              <Form
+                layout="inline"
+                form={fileForm}
+                name="control-hooks"
+                onFinish={(values) => onFinish(values, "file")}
+              >
+                <Form.Item
+                  name="file"
+                  label="本地json文件"
+                  rules={[
+                    { required: true, message: "请选择swagger json文件" },
+                  ]}
+                >
+                  <Upload
+                    name="logo"
+                    showUploadList={false}
+                    beforeUpload={() => {
+                      return false;
+                    }}
+                    fileList={[]}
+                    onChange={onFileChange}
+                  >
+                    <Button>
+                      <FileTextOutlined /> 选择文件
+                    </Button>
+                  </Upload>
+                </Form.Item>
+                <div style={{ lineHeight: "32px" }} className="mr-20">
+                  {fileName}
+                </div>
+                <Form.Item>
+                  <Button type="primary" htmlType="submit">
+                    获取
+                  </Button>
+                </Form.Item>
+              </Form>
             </TabPane>
           </Tabs>
         </div>
         <div className="pt-20">
           <Collapse defaultActiveKey={["1"]} expandIconPosition="left">
-            <Panel
-              header={
-                <Checkbox onChange={onChangeTag} onClick={stopPropagation}>
-                  <span onClick={stopPropagation}>Checkbox</span>
-                </Checkbox>
-              }
-              key="1"
-            >
-              <ul className="m-0" style={{ padding: "0 24px" }}>
-                <li
-                  style={{
-                    padding: "10px 0",
-                    listStyle: "none",
-                    borderBottom: "1px #eee solid",
-                  }}
+            {dataList.map((data, index) => {
+              return (
+                <Panel
+                  header={
+                    <Checkbox onChange={onChangeTag} onClick={stopPropagation}>
+                      <span onClick={stopPropagation}>{data.name}</span>
+                    </Checkbox>
+                  }
+                  key={index}
                 >
-                  <Checkbox onChange={onChangeTag} onClick={stopPropagation}>
-                    Checkbox
-                  </Checkbox>
-                </li>
-                <li
-                  style={{
-                    padding: "10px 0",
-                    listStyle: "none",
-                  }}
-                >
-                  <Checkbox onChange={onChangeTag} onClick={stopPropagation}>
-                    Checkbox
-                  </Checkbox>
-                </li>
-              </ul>
-            </Panel>
+                  <ul className="m-0" style={{ padding: "0 24px" }}>
+                    {data.paths.map((path) => {
+                      return (
+                        <li
+                          style={{
+                            padding: "10px 0",
+                            listStyle: "none",
+                            borderBottom: "1px #eee solid",
+                          }}
+                          key={path.path}
+                        >
+                          <Checkbox
+                            onChange={onChangeTag}
+                            onClick={stopPropagation}
+                          >
+                            {path.path}
+                          </Checkbox>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </Panel>
+              );
+            })}
           </Collapse>
         </div>
       </Drawer>
