@@ -25,6 +25,7 @@ import {
   Checkbox,
   Tabs,
   Upload,
+  Empty,
 } from "antd";
 import {
   PlusCircleOutlined,
@@ -399,12 +400,47 @@ function HandleBtn(props) {
   const [fileForm] = Form.useForm();
   const [dataList, setDataList] = useState([]);
   const [fileName, setFileName] = useState([]);
+  const [tagNameList, setTagNameList] = useState([]);
   const confirmImport = () => {
     // 导入
-
-    props.initSearch();
+    const param = [];
+    dataList.forEach((data) => {
+      data.paths.forEach((path) => {
+        if (path.isCheck) param.push(path);
+      });
+    });
+    Axios.post("/api/import-interface", param).then((res) => {
+      if (res.data.success) {
+        message.success("导入成功");
+        props.initSearch();
+        setDrawer(false);
+      } else {
+        message.error(res.data.errorMsg);
+      }
+    });
   };
-  const onChangeTag = (e) => {};
+  const onChangeTag = (e, data, index) => {
+    setDataList(
+      dataList.map((tag) => {
+        if (tag.name === data.name) {
+          tag.paths.forEach((path) => (path.isCheck = e.target.checked));
+        }
+        return tag;
+      })
+    );
+  };
+  const onChangePath = (e, data, pathData) => {
+    setDataList(
+      dataList.map((tag) => {
+        if (tag.name === data.name) {
+          tag.paths.forEach((path) => {
+            if (pathData.path === path.path) path.isCheck = e.target.checked;
+          });
+        }
+        return tag;
+      })
+    );
+  };
   const stopPropagation = (e) => e.stopPropagation();
 
   const onFinish = (values, type) => {
@@ -443,6 +479,11 @@ function HandleBtn(props) {
 
   const onFileChange = (value) => {
     setFileName(value.file.name);
+  };
+  const openCollapse = () => {
+    setTagNameList(
+      tagNameList.length > 0 ? [] : dataList.map((data) => data.name)
+    );
   };
   return (
     <div className="pt-20 pb-20 clearfix">
@@ -501,7 +542,7 @@ function HandleBtn(props) {
         }
       >
         <div>
-          <Tabs defaultActiveKey="2">
+          <Tabs defaultActiveKey="1">
             <TabPane
               tab={
                 <span>
@@ -579,44 +620,69 @@ function HandleBtn(props) {
             </TabPane>
           </Tabs>
         </div>
-        <div className="pt-20">
-          <Collapse defaultActiveKey={["1"]} expandIconPosition="left">
-            {dataList.map((data, index) => {
-              return (
-                <Panel
-                  header={
-                    <Checkbox onChange={onChangeTag} onClick={stopPropagation}>
-                      <span onClick={stopPropagation}>{data.name}</span>
-                    </Checkbox>
-                  }
-                  key={index}
-                >
-                  <ul className="m-0" style={{ padding: "0 24px" }}>
-                    {data.paths.map((path) => {
-                      return (
-                        <li
-                          style={{
-                            padding: "10px 0",
-                            listStyle: "none",
-                            borderBottom: "1px #eee solid",
-                          }}
-                          key={path.path}
+        {dataList.length > 0 ? (
+          <>
+            <div className="pt-20">
+              {/* <Button type="dashed" onClick={openCollapse}>
+                一键展开/收起
+              </Button> */}
+              <div className="float-right" style={{ lineHeight: "32px" }}>
+                已经存在的接口地址不会被覆盖导入
+              </div>
+            </div>
+            <div className="pt-20">
+              <Collapse defaultActiveKey={tagNameList}>
+                {dataList.map((data, index) => {
+                  return (
+                    <Panel
+                      header={
+                        <Checkbox
+                          indeterminate={data.indeterminate}
+                          onChange={(e) => onChangeTag(e, data, index)}
+                          onClick={stopPropagation}
                         >
-                          <Checkbox
-                            onChange={onChangeTag}
-                            onClick={stopPropagation}
-                          >
-                            {path.path}
-                          </Checkbox>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </Panel>
-              );
-            })}
-          </Collapse>
-        </div>
+                          <span onClick={stopPropagation}>{data.name}</span>
+                        </Checkbox>
+                      }
+                      key={data.name}
+                    >
+                      <ul className="m-0" style={{ padding: "0 24px" }}>
+                        {data.paths.map((path, pathIndex) => {
+                          return (
+                            <li
+                              style={{
+                                padding: "10px 0",
+                                listStyle: "none",
+                                borderBottom:
+                                  pathIndex === data.paths.length - 1
+                                    ? null
+                                    : "1px #eee solid",
+                              }}
+                              key={path.path}
+                            >
+                              <Checkbox
+                                checked={path.isCheck}
+                                onChange={(e) => onChangePath(e, data, path)}
+                                onClick={stopPropagation}
+                              >
+                                {path.path} {path.name}
+                              </Checkbox>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </Panel>
+                  );
+                })}
+              </Collapse>
+            </div>
+          </>
+        ) : (
+          <Empty
+            style={{ paddingTop: "80px" }}
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+          />
+        )}
       </Drawer>
     </div>
   );
