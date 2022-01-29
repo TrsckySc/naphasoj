@@ -26,6 +26,7 @@ import {
   Tabs,
   Upload,
   Empty,
+  Switch,
 } from "antd";
 import {
   PlusCircleOutlined,
@@ -125,18 +126,18 @@ export function Home(props) {
       // 切换mock状态
       Axios.post("/api/change-interface-mock-status", {
         id,
-        isOpen: value === "open",
+        isOpen: value,
       }).then((res) => {
         if (res.data.success) {
           message.success(
-            value === "open"
+            value
               ? "Mock状态开启成功,你可以使用Mock数据了"
               : "Mock状态已停用,你可以使用真实的接口数据了"
           );
           const table = tableList.map((data) => {
             if (id === data._id) {
               return Object.assign(data, {
-                isOpen: value === "open",
+                isOpen: value,
               });
             }
             return data;
@@ -689,17 +690,6 @@ function HandleBtn(props) {
 }
 
 function PageTable(props) {
-  const mockStatusList = [
-    {
-      value: "open",
-      label: "启用中",
-    },
-    {
-      value: "close",
-      label: "停用中",
-    },
-  ];
-
   const columns = [
     {
       title: "序号",
@@ -746,28 +736,17 @@ function PageTable(props) {
       width: 150,
       align: "center",
       render: (text, record, index) => (
-        <Select
-          defaultValue={record.isOpen ? "open" : "close"}
+        <Switch
+          checked={record.isOpen}
           style={{
-            width: 100,
-            color: record.isOpen ? "#52c41a" : "#ff4d4f",
+            backgroundColor: record.isOpen ? "#28a745" : "#ff7875",
           }}
-          onChange={(value) =>
-            props.onHandleTableRow("changeMock", value, record._id)
-          }
-        >
-          {mockStatusList.map((mockStatus) => {
-            return (
-              <Option
-                value={mockStatus.value}
-                key={mockStatus.value}
-                id={record._id}
-              >
-                {mockStatus.label}
-              </Option>
-            );
-          })}
-        </Select>
+          checkedChildren="开"
+          unCheckedChildren="关"
+          onClick={(checked) => {
+            props.onHandleTableRow("changeMock", checked, record._id);
+          }}
+        />
       ),
     },
     {
