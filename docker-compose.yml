@@ -13,7 +13,7 @@ services:
   web:
     # 构建目录
     build: ./
-    # image: mock-data
+    image: snake-api-mini
     restart: always
     volumes:
       - ./:/app
@@ -23,7 +23,7 @@ services:
       - 3004:3004
     networks:
       - webapp-network
-    command: ["./wait-for-it.sh", "database:27017", "--strict", "--", "npm", "run", "serve"]
+    command: ["./wait-for-it.sh", "database:27017", "--strict", "--", "npm", "run", "start"]
 networks:
   webapp-network:
     driver: bridge

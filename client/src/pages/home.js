@@ -623,9 +623,9 @@ function HandleBtn(props) {
         {dataList.length > 0 ? (
           <>
             <div className="pt-20">
-              {/* <Button type="dashed" onClick={openCollapse}>
+              <Button type="dashed" onClick={openCollapse}>
                 一键展开/收起
-              </Button> */}
+              </Button>
               <div className="float-right" style={{ lineHeight: "32px" }}>
                 已经存在的接口地址不会被覆盖导入
               </div>
@@ -1054,7 +1054,7 @@ let HandleInterface = function (props, ref) {
           <span className="mr-10">响应数据</span>
           {props.drawerType !== "look" ? (
             <a href="#!" style={{ color: "#6c757d" }}>
-              如何生成随机数据?
+              如何生成Mock数据?
             </a>
           ) : null}
         </h4>
@@ -1072,24 +1072,43 @@ let HandleInterface = function (props, ref) {
               <Radio.Button value="1">编辑</Radio.Button>
               <Radio.Button value="2">预览</Radio.Button>
             </Radio.Group>
-            <div className="float-right">
-              <span className="mr-10">快捷数据模版:</span>
-              <Select
-                defaultValue=""
-                style={{ width: 200 }}
-                size="small"
-                onChange={changeBaseData}
-              >
-                <Option value="">不使用响应数据模版</Option>
-                {baseDataList.map((baseData, index) => {
-                  return (
-                    <Option value={index} title={baseData.name} key={index}>
-                      {baseData.name}
-                    </Option>
-                  );
-                })}
-              </Select>
-            </div>
+            {/* <Popconfirm
+              title="格式化会清空注释，是否继续?"
+              onConfirm={() => {
+                const value = aceRef.current.getValue();
+                if (!value) return;
+                aceRef.current.editor.setValue(
+                  JSON5.stringify(JSON5.parse(value), null, 2)
+                );
+              }}
+              okText="确定"
+              cancelText="算了"
+            >
+              <Button type="link" size="small">
+                格式化
+              </Button>
+            </Popconfirm> */}
+
+            {props.drawerType === "add" ? (
+              <div className="float-right">
+                <span className="mr-10">快捷数据模版:</span>
+                <Select
+                  defaultValue=""
+                  style={{ width: 200 }}
+                  size="small"
+                  onChange={changeBaseData}
+                >
+                  <Option value="">不使用响应数据模版</Option>
+                  {baseDataList.map((baseData, index) => {
+                    return (
+                      <Option value={index} title={baseData.name} key={index}>
+                        {baseData.name}
+                      </Option>
+                    );
+                  })}
+                </Select>
+              </div>
+            ) : null}
           </div>
         ) : null}
 

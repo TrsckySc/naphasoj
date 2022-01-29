@@ -32,8 +32,8 @@ function Header(props) {
       </Menu>
       <div className="float-right">
         <a href="https://www.snake-api.com" rel="noopener noreferrer" target="_blank" className="mr-20">SNAKE-API 官网</a>
-        <a href="https://gitee.com/seebin/mock-data/" rel="noopener noreferrer" target="_blank">
-          <img src='https://gitee.com/seebin/mock-data/badge/star.svg?theme=dark' alt='star'></img>
+        <a href="https://gitee.com/seebin/snake-api-mini/" rel="noopener noreferrer" target="_blank">
+          <img src='https://gitee.com/seebin/snake-api-mini/badge/star.svg?theme=dark' alt='star'></img>
         </a>
       </div>
     </Fragment>
