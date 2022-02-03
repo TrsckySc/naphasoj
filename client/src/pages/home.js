@@ -267,25 +267,35 @@ export function Home(props) {
         visible={drawer}
         width="80%"
         footer={
-          <div
-            style={{
-              textAlign: "right",
-            }}
-          >
-            <Button onClick={() => setDrawer(false)} style={{ marginRight: 8 }}>
-              关闭
-            </Button>
-            {drawerType !== "look" ? (
-              <Button
-                type="primary"
-                onClick={() => {
-                  handleInterfaceRef.current.onFinish();
-                }}
-              >
-                保存
+          <div className="clearfix">
+            <div
+              className="float-left"
+              style={{
+                lineHeight: '32px'
+              }}
+            >
+              提示:编辑器内使用快捷键 <kbd>Ctrl+Enter</kbd>或<kbd>Command+Enter</kbd> 可切换全屏状态
+            </div>
+            <div
+              className="float-right"
+              style={{
+                textAlign: "right",
+              }}
+            >
+              <Button onClick={() => setDrawer(false)} style={{ marginRight: 8 }}>
+                关闭
               </Button>
-            ) : null}
-            (
+              {drawerType !== "look" ? (
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    handleInterfaceRef.current.onFinish();
+                  }}
+                >
+                  保存
+                </Button>
+              ) : null}
+            </div>
           </div>
         }
       >
@@ -456,7 +466,7 @@ function HandleBtn(props) {
       });
     } else {
       // 文件导入
-      var reader = new FileReader();
+      const reader = new FileReader();
       reader.readAsText(values.file.file);
       reader.onload = (res) => {
         try {
@@ -903,6 +913,19 @@ let HandleInterface = function (props, ref) {
       return false;
     }
   };
+  
+  const aceBlur = () => {
+    try {
+      const jsonData = JSON5.parse(aceRef.current.getValue());
+      if (!jsonData) {
+        setMockData('');
+        return;
+      }
+      setMockData(JSON.stringify(mock(jsonData), null , 2));
+    } catch (e) {
+      setMockData('错误的JSON数据, 请检查编辑器内数据格式(比如：中文逗号、丢失逗号、丢失括号、错误key)');
+    }
+  };
 
   const onFinish = () => {
     form
@@ -914,7 +937,7 @@ let HandleInterface = function (props, ref) {
         const param = {
           name: values.name,
           path: values.path,
-          data: mock(jsonData),
+          data: JSON.parse(mockData),
           sourceData: JSON5.stringify(aceRef.current.getValue()),
           method: values.method,
           prefix: values.prefix,
@@ -1097,7 +1120,7 @@ let HandleInterface = function (props, ref) {
               display: props.drawerType !== "look" && isEdit ? "block" : "none",
             }}
           >
-            <Ace ref={aceRef} height="400px"></Ace>
+            <Ace ref={aceRef} height="400px" onBlur={aceBlur}></Ace>
           </div>
           <div
             style={{

@@ -23,6 +23,7 @@ export class Ace extends React.Component {
       isLoadAce: false,
     };
     React.forwardRef(this.render);
+    this.timer = null;
   }
   // 启动全屏
   launchFullscreen(element) {
@@ -53,11 +54,11 @@ export class Ace extends React.Component {
     const owner = this;
     const editor = (this.editor = window.ace.edit("interface-data"));
     editor.setTheme("ace/theme/chrome"); //设置主题
-    var JavaScriptMode = window.ace.require("ace/mode/json").Mode;
+    const JavaScriptMode = window.ace.require("ace/mode/json").Mode;
     editor.session.setMode(new JavaScriptMode()); //设置程序语言模式
 
     // 设置自动补全
-    var tangideCompleter = {
+    const tangideCompleter = {
       identifierRegexps: [/[a-zA-Z_0-9@\-\u00A2-\uFFFF]/],
       getCompletions: function (editor, session, pos, prefix, callback) {
         if (prefix.length === 0) {
@@ -68,7 +69,7 @@ export class Ace extends React.Component {
       },
     };
     // 自定义补全列表
-    var autoCompleteData = [
+    const autoCompleteData = [
       {
         name: "mock string",
         value: "@string",
@@ -104,7 +105,7 @@ export class Ace extends React.Component {
       enableSnippets: true,
       enableLiveAutocompletion: true,
     });
-    var langTools = window.ace.require("ace/ext/language_tools");
+    const langTools = window.ace.require("ace/ext/language_tools");
     langTools.addCompleter(tangideCompleter);
 
     // 设置全屏
@@ -112,7 +113,7 @@ export class Ace extends React.Component {
       name: "fullscreen",
       bindKey: { win: "Ctrl-Enter", mac: "Command-Enter" },
       exec: function (editor) {
-        var ele = document.getElementById("interface-data");
+        const ele = document.getElementById("interface-data");
         if (
           document.isFullScreen ||
           document.mozIsFullScreen ||
@@ -129,7 +130,12 @@ export class Ace extends React.Component {
     // editor.getSession().setUseWrapMode(true);//设置折叠 默认折叠的
     editor.getSession().setTabSize(2); // 设置制表符大小
     // 改变事件
-    editor.getSession().on("change", function (e, a) {});
+    editor.getSession().on("change", function (e, a) {
+      clearTimeout(owner.timer);
+      owner.timer = setTimeout(()=>{
+        owner.props.onBlur();
+      }, 200);
+    });
   }
 
   getValue() {
