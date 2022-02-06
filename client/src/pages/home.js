@@ -271,10 +271,11 @@ export function Home(props) {
             <div
               className="float-left"
               style={{
-                lineHeight: '32px'
+                lineHeight: "32px",
               }}
             >
-              提示:编辑器内使用快捷键 <kbd>Ctrl+Enter</kbd>或<kbd>Command+Enter</kbd> 可切换全屏状态
+              提示:编辑器内使用快捷键 <kbd>Ctrl+Enter</kbd>或
+              <kbd>Command+Enter</kbd> 可切换全屏状态
             </div>
             <div
               className="float-right"
@@ -282,7 +283,10 @@ export function Home(props) {
                 textAlign: "right",
               }}
             >
-              <Button onClick={() => setDrawer(false)} style={{ marginRight: 8 }}>
+              <Button
+                onClick={() => setDrawer(false)}
+                style={{ marginRight: 8 }}
+              >
                 关闭
               </Button>
               {drawerType !== "look" ? (
@@ -496,6 +500,14 @@ function HandleBtn(props) {
       tagNameList.length > 0 ? [] : dataList.map((data) => data.name)
     );
   };
+  const handlePanel = (tagName) => {
+    const tagArray = tagNameList.filter((tag) => tagName === tag);
+    if (tagArray.length > 0) {
+      setTagNameList(tagNameList.filter((tag) => tagName !== tag));
+    } else {
+      setTagNameList([...tagNameList, tagName]);
+    }
+  };
   return (
     <div className="pt-20 pb-20 clearfix">
       <div style={{ float: "left" }}>
@@ -529,7 +541,12 @@ function HandleBtn(props) {
         placement="left"
         destroyOnClose={true}
         forceRender={true}
-        onClose={() => setDrawer(false)}
+        onClose={() => {
+          urlForm.resetFields();
+          fileForm.resetFields();
+          setDataList([]);
+          setDrawer(false);
+        }}
         visible={drawer}
         width="80%"
         footer={
@@ -538,13 +555,24 @@ function HandleBtn(props) {
               textAlign: "right",
             }}
           >
-            <Button onClick={() => setDrawer(false)} style={{ marginRight: 8 }}>
+            <Button
+              onClick={() => {
+                urlForm.resetFields();
+                fileForm.resetFields();
+                setDataList([]);
+                setDrawer(false);
+              }}
+              style={{ marginRight: 8 }}
+            >
               关闭
             </Button>
             <Button
               type="primary"
               onClick={() => {
                 confirmImport();
+                urlForm.resetFields();
+                fileForm.resetFields();
+                setDataList([]);
               }}
             >
               确认导入
@@ -642,18 +670,37 @@ function HandleBtn(props) {
               </div>
             </div>
             <div className="pt-20">
-              <Collapse defaultActiveKey={tagNameList}>
+              <Collapse activeKey={tagNameList}>
                 {dataList.map((data, index) => {
                   return (
                     <Panel
                       header={
-                        <Checkbox
-                          indeterminate={data.indeterminate}
-                          onChange={(e) => onChangeTag(e, data, index)}
-                          onClick={stopPropagation}
+                        <div
+                          style={{
+                            margin: "-12px -16px -12px -40px",
+                            padding: "12px 16px 12px 40px",
+                            height: "46px",
+                          }}
                         >
-                          <span onClick={stopPropagation}>{data.name}</span>
-                        </Checkbox>
+                          <div
+                            style={{
+                              margin: "-12px -16px -12px -40px",
+                              padding: "12px 16px 12px 40px",
+                              height: "46px",
+                              width: "100%",
+                              position: "absolute",
+                            }}
+                            onClick={() => handlePanel(data.name)}
+                          >
+                            <Checkbox
+                              indeterminate={data.indeterminate}
+                              onChange={(e) => onChangeTag(e, data, index)}
+                              onClick={stopPropagation}
+                            >
+                              <span onClick={stopPropagation}>{data.name}</span>
+                            </Checkbox>
+                          </div>
+                        </div>
                       }
                       key={data.name}
                     >
@@ -913,17 +960,19 @@ let HandleInterface = function (props, ref) {
       return false;
     }
   };
-  
+
   const aceBlur = () => {
     try {
       const jsonData = JSON5.parse(aceRef.current.getValue());
       if (!jsonData) {
-        setMockData('');
+        setMockData("");
         return;
       }
-      setMockData(JSON.stringify(mock(jsonData), null , 2));
+      setMockData(JSON.stringify(mock(jsonData), null, 2));
     } catch (e) {
-      setMockData('错误的JSON数据, 请检查编辑器内数据格式(比如：中文逗号、丢失逗号、丢失括号、错误key)');
+      setMockData(
+        "错误的JSON数据, 请检查编辑器内数据格式(比如：中文逗号、丢失逗号、丢失括号、错误key)"
+      );
     }
   };
 

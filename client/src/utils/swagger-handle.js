@@ -13,7 +13,7 @@ export function swaggerHandle(res) {
       const responses = Object.keys(methodData.responses);
       let response = null;
       for (let i = 0; i < responses.length; i++) {
-        if (responses[i] === 200) {
+        if (Number(responses[i]) === 200) {
           response = methodData.responses[responses[i]].schema;
           break;
         }
