@@ -1104,7 +1104,11 @@ let HandleInterface = function (props, ref) {
         <h4>
           <span className="mr-10">响应数据</span>
           {props.drawerType !== "look" ? (
-            <a href="#!" style={{ color: "#6c757d" }}>
+            <a
+              href="/#/document?id=1"
+              target="_blank"
+              style={{ color: "#6c757d" }}
+            >
               如何生成Mock数据?
             </a>
           ) : null}

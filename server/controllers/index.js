@@ -1,5 +1,7 @@
 const express = require("express");
 const request = require("request");
+const fs = require("fs");
+const path = require("path");
 
 const router = express.Router();
 
@@ -12,6 +14,7 @@ var jsonParser = bodyParser.json({ limit: "50mb" });
 var urlencodedParser = bodyParser.urlencoded({ limit: "50mb", extended: true });
 
 var config = require("../../config");
+var documentList = require("../document/index");
 
 var TodoModal = require("../modal/modal");
 var BaseDataModal = require("../modal/baseDataModal");
@@ -489,6 +492,30 @@ router.post("/api/update-config-mock", jsonParser, (req, res) => {
         success: true,
       });
     });
+  });
+});
+
+// 接口文档列表
+router.get("/api/document-list", jsonParser, (req, res) => {
+  res.send({
+    success: true,
+    data: documentList,
+  });
+});
+
+// 接口文档详情
+router.post("/api/document-detail", jsonParser, (req, res) => {
+  var arr = documentList.filter((obj) => req.body.id === obj.id);
+  if (arr.length === 0) {
+    res.send({
+      success: false,
+      errorMsg: "错误数据",
+    });
+    return;
+  }
+  res.send({
+    success: true,
+    data: fs.readFileSync(path.join(__dirname, arr[0].url), "utf-8"),
   });
 });
 
