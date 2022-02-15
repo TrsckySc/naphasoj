@@ -1105,7 +1105,7 @@ let HandleInterface = function (props, ref) {
           <span className="mr-10">响应数据</span>
           {props.drawerType !== "look" ? (
             <a
-              href="/#/document?id=1"
+              href="#/document?id=1"
               target="_blank"
               style={{ color: "#6c757d" }}
             >

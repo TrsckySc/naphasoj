@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Form, Input, Button, Radio, message } from "antd";
+import { Form, Input, Button, Radio, message, InputNumber } from "antd";
 import Axios from "axios";
 
 const layout = {
-  labelCol: { span: 3 },
+  labelCol: { span: 5 },
   wrapperCol: { span: 8 },
 };
 const tailLayout = {
-  wrapperCol: { offset: 3, span: 8 },
+  wrapperCol: { offset: 5, span: 8 },
 };
 export function Project() {
   const [form] = Form.useForm();
@@ -33,7 +33,7 @@ export function Project() {
     console.log("Success:", values);
     const param = {
       target: values.target,
-      delay: values.delay,
+      delay: parseInt(values.delay),
       id: configId,
       changeOrigin: values.changeOrigin,
     };
@@ -64,7 +64,7 @@ export function Project() {
         onFinishFailed={onFinishFailed}
       >
         <Form.Item
-          label="代理地址"
+          label="代理目标地址"
           name="target"
           rules={[{ required: true, message: "请输入项目代理地址" }]}
         >
@@ -72,17 +72,32 @@ export function Project() {
         </Form.Item>
 
         <Form.Item
-          label="响应延时"
+          label="Mock响应延时(单位:ms)"
           name="delay"
           rules={[{ required: true, message: "请输入Mock接口响应延时!" }]}
         >
-          <Input autoComplete="off" />
+          <InputNumber
+            min={0}
+            style={{
+              width: "100%",
+            }}
+          />
         </Form.Item>
 
         <Form.Item label="变更来源" name="changeOrigin">
           <Radio.Group>
             <Radio value={true}>变更</Radio>
             <Radio value={false}>不变更</Radio>
+            <a
+              href="#/document?id=2"
+              target="_blank"
+              style={{
+                color: "#6c757d",
+                marginLeft: "20px",
+              }}
+            >
+              如何选择?
+            </a>
           </Radio.Group>
         </Form.Item>
 

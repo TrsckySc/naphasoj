@@ -42,13 +42,14 @@ react、react-router、redux...
 
 #### 使用教程-本地版(需要自己本地安装mongodb数据库)
 
-1. 先下载安装mongodb, [MongoDB官网下载链接](https://www.mongodb.com/download-center/community)
-2. `git clone https://gitee.com/seebin/snake-api-mini.git`
-3. `cd snake-api-mini`
-4. `npm install`
-5. 修改config.js文件里面的mongodb数据库链接地址，解开本地版链接地址  注释docker版链接地址
-6. `npm start`
-7. 浏览器访问`http://localhost:3004/mock` 来管理mock接口
+> 先下载安装mongodb, [MongoDB官网下载链接](https://www.mongodb.com/download-center/community)
+
+1. `git clone https://gitee.com/seebin/snake-api-mini.git`
+2. `cd snake-api-mini`
+3. `npm install`
+4. 修改config.js文件里面的mongodb数据库链接地址，解开本地版链接地址  注释docker版链接地址
+5. `npm start`
+6. 浏览器访问`http://localhost:3004/mock` 来管理mock接口
 
 #### 使用说明
 
@@ -82,9 +83,7 @@ service docker stop      停止docker(linux系统)
 
 #### 交流谈论
 
-钉钉交流群：
-
-![dingding](http://qiniu.seebin.com/sanke-api-dingding-qrocode.jpg)
+钉钉交流群:21958681
 
 #### 相关链接
 

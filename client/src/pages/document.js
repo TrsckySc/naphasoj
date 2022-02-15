@@ -6,21 +6,22 @@ import { Menu } from "antd";
 export function Document(props) {
   const [documentList, setDocumentList] = useState([]);
   const [detail, setDetail] = useState("");
-  const [selectedKey, setSelectedKey] = useState(["1"]);
+  const [selectedKey, setSelectedKey] = useState([]);
   useEffect(() => {
     Axios.get("/api/document-list").then((res) => {
       if (res.data.success) {
         setDocumentList(res.data.data);
+
+        if (props.location.search) {
+          const id = props.location.search.substring(1).split("=")[1];
+          selectedDocument(Number(id));
+          setSelectedKey([id]);
+        } else {
+          selectedDocument(res.data.data[0].id);
+        }
       }
     });
-    if (props.location.search) {
-      const id = props.location.search.substring(1).split("=")[1];
-      selectedDocument(Number(id));
-      setSelectedKey([id]);
-    } else {
-      selectedDocument(1);
-    }
-  }, [setDocumentList]);
+  }, [setDocumentList, props.location.search]);
 
   const selectedDocument = (id) => {
     Axios.post("/api/document-detail", { id }).then((res) => {
@@ -47,7 +48,7 @@ export function Document(props) {
           })}
         </Menu>
       </div>
-      <div className="flex-1 ml-20 p-20 bg-fff">
+      <div className="flex-1 ml-20 p-20 bg-fff img-warp">
         <ReactMarkdown source={detail}></ReactMarkdown>
       </div>
     </div>
