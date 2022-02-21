@@ -762,6 +762,7 @@ function PageTable(props) {
     {
       title: "接口类型",
       dataIndex: "method",
+      width: 90,
       key: "method",
       align: "center",
       render: (method) => (
@@ -773,6 +774,7 @@ function PageTable(props) {
     {
       title: "接口前缀",
       dataIndex: "prefix",
+      width: 150,
       key: "prefix",
     },
     {
