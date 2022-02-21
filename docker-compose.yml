@@ -13,7 +13,7 @@ services:
   web:
     # 构建目录
     build: ./
-    # image: mock-data
+    image: snake-api-mini
     restart: always
     volumes:
       - ./:/app
