@@ -1,8 +1,10 @@
 # SNAKE-API mini
 
+### UI 2.0 新版本来了!!
+
 #### 界面
 
-![snake-api-mini-page](http://qiniu.seebin.com/snake-api-mini-page.png)
+![snake-api-mini-home](http://qiniu.seebin.com/snake-api-home-tab.png)
 
 #### 介绍
 
