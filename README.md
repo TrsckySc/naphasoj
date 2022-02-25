@@ -94,3 +94,5 @@ service docker stop      停止docker(linux系统)
 [Window电脑本地安装MongoDB服务教程](http://note.youdao.com/noteshare?id=ae30a3d8b9ad2b8fdd81f2ae39834490)
 
 [Ant-Design 国内镜像地址](https://ant-design.gitee.io/components/button-cn/)
+
+[Window 10系统Docker启动： SNAKE-API mini 项目接口管理地址无法访问的问题](http://note.youdao.com/noteshare?id=33ee27ee8a5412322e5ce1981ceaa556&sub=5B4F928C0D7E4A2C853571B600B5B329)
