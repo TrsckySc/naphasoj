@@ -86,6 +86,32 @@ router.post("/api/add-interface", jsonParser, (req, res) => {
   });
 });
 
+// devtool 保存单个接口
+router.post("/api/devtool/add-interface", bodyParser.json({ type:"*/*", limit: "50mb" }), (req, res) => {
+  let reqBody = req.body;
+  reqBody.url = reqBody.prefix + reqBody.path;
+  reqBody.isLock = false;
+  reqBody.sourceData = JSON.stringify(req.body.sourceData);
+
+  // 保证url唯一性
+  TodoModal.find({ url: reqBody.url }, (err, item) => {
+    if (err) throw err;
+    if (JSON.stringify(item) !== "[]") {
+      res.json(500, { error: '已经存在的mock地址' })
+    } else {
+      // 存入数据库
+      var todoObj = new TodoModal(reqBody);
+
+      todoObj.save((err, todo) => {
+        if (err) throw err;
+        res.send({
+          success: true,
+        });
+      });
+    }
+  });
+});
+
 // 获取接口列表
 router.post("/api/get-interface-list", jsonParser, (req, res) => {
   var param = {};
