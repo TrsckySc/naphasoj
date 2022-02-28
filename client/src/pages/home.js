@@ -1175,7 +1175,7 @@ let HandleInterface = function (props, ref) {
               display: props.drawerType !== "look" && isEdit ? "block" : "none",
             }}
           >
-            <Ace ref={aceRef} height="400px" onBlur={aceBlur}></Ace>
+            <Ace ref={aceRef} height="calc(100vh - 220px)" onBlur={aceBlur}></Ace>
           </div>
           <div
             style={{
@@ -1185,7 +1185,7 @@ let HandleInterface = function (props, ref) {
           >
             <TextArea
               value={mockData}
-              style={{ height: "400px", backgroundColor: "#f2f2f2" }}
+              style={{ height: "calc(100vh - 220px)", backgroundColor: "#f2f2f2" }}
               readOnly
             />
           </div>
