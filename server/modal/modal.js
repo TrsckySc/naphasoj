@@ -10,6 +10,9 @@ var todoSchemas = mongoose.Schema({
   isLock: Boolean,                    // 是否锁住  锁住不会被批量删除
   method: String,                     // 请求类型
   prefix: String,                     // 接口地址前缀
+  source: Number,                     // 数据来源 1：自建   2：swagger导入   3：三方
+  threePlatform: String,              // 三方平台
+  threeDataUrl: String,               // 三方响应数据地址
 });
 
 var TodoModal = mongoose.model('Interface', todoSchemas);

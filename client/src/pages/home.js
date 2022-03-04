@@ -121,7 +121,7 @@ export function Home(props) {
     updateProjectConfig();
   }, [updateProjectConfig]);
 
-  function handleTableRow(type, value, id) {
+  function handleTableRow(type, value, id, dataSource) {
     if (type === "changeMock") {
       // 切换mock状态
       Axios.post("/api/change-interface-mock-status", {
@@ -185,8 +185,16 @@ export function Home(props) {
         }
       });
     } else if (type === "edit") {
-      // 编辑接口
-      setDrawerType("edit");
+      if (dataSource === 1) {
+        // 编辑自建接口
+        setDrawerType("edit");
+      } else if (dataSource === 3) {
+        // 编辑三方接口
+        setDrawerType("edit-three");
+      } else {
+        // 默认自建接口
+        setDrawerType("edit");
+      }
       setDrawerId(id);
       setDrawer(true);
     } else if (type === "look") {
@@ -195,8 +203,16 @@ export function Home(props) {
       setDrawerId(id);
       setDrawer(true);
     } else if (type === "add") {
-      // 新增接口
-      setDrawerType("add");
+      if (dataSource === 1) {
+        // 新增自建接口
+        setDrawerType("add");
+      } else if (dataSource === 3) {
+        // 新增三方接口
+        setDrawerType("add-three");
+      } else {
+        // 默认自建接口
+        setDrawerType("add");
+      }
       setDrawerId(null);
       setDrawer(true);
     }
@@ -242,8 +258,8 @@ export function Home(props) {
         initSearch={() => {
           getListData();
         }}
-        openDrawer={() => {
-          handleTableRow("add", null, null);
+        openDrawer={(source) => {
+          handleTableRow("add", null, null, source);
         }}
         deleteAllInterface={deleteAllInterface}
       ></HandleBtn>
@@ -254,9 +270,9 @@ export function Home(props) {
 
       <Drawer
         title={
-          drawerType === "add"
+          drawerType === "add" || drawerType === "add-three"
             ? "新增接口"
-            : drawerType === "edit"
+            : drawerType === "edit" || drawerType === "edit-three"
             ? "编辑接口"
             : "查看接口"
         }
@@ -421,6 +437,7 @@ function HandleBtn(props) {
     const param = [];
     dataList.forEach((data) => {
       data.paths.forEach((path) => {
+        path.source = 2;
         if (path.isCheck) param.push(path);
       });
     });
@@ -513,10 +530,18 @@ function HandleBtn(props) {
       <div style={{ float: "left" }}>
         <Button
           type="primary"
-          onClick={() => props.openDrawer()}
+          onClick={() => props.openDrawer(1)}
           icon={<PlusCircleOutlined />}
         >
           新建接口
+        </Button>
+        <Button
+          type="primary"
+          onClick={() => props.openDrawer(3)}
+          icon={<PlusCircleOutlined />}
+          className="ml-20"
+        >
+          新建三方接口
         </Button>
         <Button
           onClick={() => setDrawer(true)}
@@ -747,6 +772,18 @@ function HandleBtn(props) {
 }
 
 function PageTable(props) {
+  const sourceFilter = (source) => {
+    switch (source) {
+      case 1:
+        return "自建";
+      case 2:
+        return "导入";
+      case 3:
+        return "三方";
+      default:
+        return "-";
+    }
+  };
   const columns = [
     {
       title: "序号",
@@ -789,6 +826,13 @@ function PageTable(props) {
       ),
     },
     {
+      title: "来源",
+      dataIndex: "source",
+      key: "source",
+      width: 60,
+      render: (text) => sourceFilter(text),
+    },
+    {
       title: "Mock启用状态",
       dataIndex: "isOpen",
       key: "isOpen",
@@ -803,7 +847,7 @@ function PageTable(props) {
           checkedChildren="开"
           unCheckedChildren="关"
           onClick={(checked) => {
-            props.onHandleTableRow("changeMock", checked, record._id);
+            props.onHandleTableRow("changeMock", checked, record._id, null);
           }}
         />
       ),
@@ -820,7 +864,7 @@ function PageTable(props) {
                 type="link"
                 size="small"
                 onClick={() =>
-                  props.onHandleTableRow("changeLock", false, record._id)
+                  props.onHandleTableRow("changeLock", false, record._id, null)
                 }
                 icon={<LockOutlined />}
               />
@@ -830,24 +874,31 @@ function PageTable(props) {
               type="link"
               size="small"
               onClick={() =>
-                props.onHandleTableRow("changeLock", true, record._id)
+                props.onHandleTableRow("changeLock", true, record._id, null)
               }
               icon={<UnlockOutlined />}
             />
           )}
-          <Button
+          {/* <Button
             size="small"
-            onClick={() => props.onHandleTableRow("look", null, record._id)}
+            onClick={() => props.onHandleTableRow("look", null, record._id, null)}
             type="primary"
             icon={<EyeOutlined />}
           >
             查看
-          </Button>
+          </Button> */}
           {!record.isLock ? (
             <>
               <Button
                 size="small"
-                onClick={() => props.onHandleTableRow("edit", null, record._id)}
+                onClick={() =>
+                  props.onHandleTableRow(
+                    "edit",
+                    null,
+                    record._id,
+                    record.source
+                  )
+                }
                 icon={<EditOutlined />}
               >
                 编辑
@@ -855,7 +906,7 @@ function PageTable(props) {
               <Popconfirm
                 title="您确定要删除该接口吗?"
                 onConfirm={() => {
-                  props.onHandleTableRow("delete", null, record._id);
+                  props.onHandleTableRow("delete", null, record._id, null);
                 }}
                 okText="确定"
                 cancelText="不删了"
@@ -900,7 +951,7 @@ let HandleInterface = function (props, ref) {
 
   useEffect(() => {
     // 非新增接口查询详情
-    if (props.drawerType && props.drawerType !== "add") {
+    if (props.drawerType === "edit" || props.drawerType === "edit-three") {
       Axios.post("/api/get-interface-detail", { id: props.drawerId }).then(
         (res) => {
           if (res.data.success) {
@@ -909,14 +960,18 @@ let HandleInterface = function (props, ref) {
               path: res.data.data.path,
               method: res.data.data.method,
               prefix: res.data.data.prefix,
+              threePlatform: res.data.data.threePlatform || "yapi",
+              threeDataUrl: res.data.data.threeDataUrl || "",
             };
             form.setFieldsValue(data);
-            setDetailFormData(data);
-            // 回显json5数据
-            aceRef.current.editor.setValue(
-              JSON5.parse(res.data.data.sourceData)
-            );
-            setMockData(JSON.stringify(mock(res.data.data.data), null, 4));
+            // setDetailFormData(data);
+            if (props.drawerType === "edit") {
+              // 回显json5数据
+              aceRef.current.editor.setValue(
+                JSON5.parse(res.data.data.sourceData)
+              );
+              setMockData(JSON.stringify(mock(res.data.data.data), null, 4));
+            }
           } else {
             message.error(res.data.errorMsg);
           }
@@ -982,17 +1037,27 @@ let HandleInterface = function (props, ref) {
     form
       .validateFields()
       .then((values) => {
-        const jsonData = jsonValue();
-        if (!jsonData) return;
+        let source, jsonData, sourceData;
+        if (props.drawerType === "add" || props.drawerType === "edit") {
+          source = 1;
+          jsonData = jsonValue();
+          if (!jsonData) return;
+          sourceData = JSON5.stringify(aceRef.current.getValue());
+        } else {
+          source = 3;
+        }
 
         const param = {
           name: values.name,
           path: values.path,
           data: JSON.parse(mockData),
-          sourceData: JSON5.stringify(aceRef.current.getValue()),
+          sourceData,
           method: values.method,
           prefix: values.prefix,
           isOpen: true,
+          source,
+          threePlatform: values.threePlatform,
+          threeDataUrl: values.threeDataUrl,
         };
 
         let url;
@@ -1019,179 +1084,194 @@ let HandleInterface = function (props, ref) {
   };
 
   return (
-    <Row>
-      {/* 表单项 */}
-      <Col span={10} className="pr-10">
-        <Form
-          layout={{
-            labelCol: { span: 0 },
-            wrapperCol: { span: 24 },
-          }}
-          form={form}
-          name="basic"
-          initialValues={{
-            name: "",
-            path: "",
-            method: "GET",
-            prefix: "",
-          }}
-        >
+    <Form
+      layout={{
+        labelCol: { span: 0 },
+        wrapperCol: { span: 24 },
+      }}
+      form={form}
+      name="basic"
+    >
+      <Row>
+        {/* 表单项 */}
+        <Col span={10} className="pr-10">
           <h4>接口名称</h4>
-          {props.drawerType !== "look" ? (
-            <Form.Item
-              name="name"
-              rules={[{ required: true, message: "请输入接口名称!" }]}
-            >
-              <Input autoComplete="off" />
-            </Form.Item>
-          ) : (
-            <ul>
-              <li>{detailFormData.name}</li>
-            </ul>
-          )}
+          <Form.Item
+            name="name"
+            initialValue={""}
+            rules={[{ required: true, message: "请输入接口名称!" }]}
+          >
+            <Input autoComplete="off" />
+          </Form.Item>
 
           <h4>请求方式</h4>
-          {props.drawerType !== "look" ? (
-            <Form.Item name="method">
-              <Radio.Group buttonStyle="solid">
-                <Radio value="GET">GET</Radio>
-                <Radio value="POST">POST</Radio>
-                <Radio value="PUT">PUT</Radio>
-                <Radio value="DELETE">DELETE</Radio>
-              </Radio.Group>
-            </Form.Item>
-          ) : (
-            <ul>
-              <li>{detailFormData.method}</li>
-            </ul>
-          )}
+          <Form.Item name="method" initialValue={"GET"}>
+            <Radio.Group buttonStyle="solid">
+              <Radio value="GET">GET</Radio>
+              <Radio value="POST">POST</Radio>
+              <Radio value="PUT">PUT</Radio>
+              <Radio value="DELETE">DELETE</Radio>
+            </Radio.Group>
+          </Form.Item>
 
           <h4>工程前缀</h4>
-          {props.drawerType !== "look" ? (
-            <Form.Item name="prefix">
-              <Select>
-                <Select.Option value="">无接口前缀</Select.Option>
-                {prefixList.map((prefix) => {
-                  return (
-                    <Select.Option value={prefix.code} key={prefix.code}>
-                      {prefix.code}
-                    </Select.Option>
-                  );
-                })}
-              </Select>
-            </Form.Item>
-          ) : (
-            <ul>
-              <li>{detailFormData.prefix}</li>
-            </ul>
-          )}
+          <Form.Item name="prefix" initialValue={""}>
+            <Select>
+              <Select.Option value="">无接口前缀</Select.Option>
+              {prefixList.map((prefix) => {
+                return (
+                  <Select.Option value={prefix.code} key={prefix.code}>
+                    {prefix.code}
+                  </Select.Option>
+                );
+              })}
+            </Select>
+          </Form.Item>
 
           <h4>接口地址</h4>
-          {props.drawerType !== "look" ? (
-            <Form.Item
-              name="path"
-              rules={[{ required: true, message: "请输入接口地址!" }]}
-            >
-              <Input autoComplete="off" />
-            </Form.Item>
-          ) : (
-            <ul>
-              <li>{detailFormData.path}</li>
-            </ul>
-          )}
-        </Form>
-      </Col>
-      {/* 代码编辑与预览 */}
-      <Col span={14} className="pl-10">
-        <h4>
-          <span className="mr-10">响应数据</span>
-          {props.drawerType !== "look" ? (
-            <a
-              href="#/document?id=1"
-              target="_blank"
-              style={{ color: "#6c757d" }}
-            >
-              如何生成Mock数据?
-            </a>
-          ) : null}
-        </h4>
-        {props.drawerType !== "look" ? (
-          <div className="clearfix">
-            <Radio.Group
-              className="float-left"
-              defaultValue="1"
-              size="small"
-              buttonStyle="solid"
-              onChange={(e) =>
-                e.target.value === "1" ? setIsEdit(true) : setIsEdit(false)
-              }
-            >
-              <Radio.Button value="1">编辑</Radio.Button>
-              <Radio.Button value="2">预览</Radio.Button>
-            </Radio.Group>
-            {/* <Popconfirm
-              title="格式化会清空注释，是否继续?"
-              onConfirm={() => {
-                const value = aceRef.current.getValue();
-                if (!value) return;
-                aceRef.current.editor.setValue(
-                  JSON5.stringify(JSON5.parse(value), null, 2)
-                );
-              }}
-              okText="确定"
-              cancelText="算了"
-            >
-              <Button type="link" size="small">
-                格式化
-              </Button>
-            </Popconfirm> */}
-
-            {props.drawerType === "add" ? (
-              <div className="float-right">
-                <span className="mr-10">快捷数据模版:</span>
-                <Select
-                  defaultValue=""
-                  style={{ width: 200 }}
-                  size="small"
-                  onChange={changeBaseData}
-                >
-                  <Option value="">不使用响应数据模版</Option>
-                  {baseDataList.map((baseData, index) => {
-                    return (
-                      <Option value={index} title={baseData.name} key={index}>
-                        {baseData.name}
-                      </Option>
-                    );
-                  })}
+          <Form.Item
+            name="path"
+            initialValue={""}
+            rules={[{ required: true, message: "请输入接口地址!" }]}
+          >
+            <Input autoComplete="off" />
+          </Form.Item>
+        </Col>
+        {/* 代码编辑与预览 */}
+        <Col span={14} className="pl-10">
+          {props.drawerType === "add-three" ||
+          props.drawerType === "edit-three" ? (
+            <>
+              <h4>第三方Mock平台</h4>
+              <Form.Item
+                name="threePlatform"
+                initialValue={"yapi"}
+                rules={[{ required: true, message: "请选择第三方Mock平台!" }]}
+              >
+                <Select>
+                  <Select.Option value="easy-mock">Easy-Mock</Select.Option>
+                  <Select.Option value="yapi">Yapi</Select.Option>
                 </Select>
-              </div>
-            ) : null}
-          </div>
-        ) : null}
+              </Form.Item>
 
-        <div className="pt-10">
-          <div
-            style={{
-              display: props.drawerType !== "look" && isEdit ? "block" : "none",
-            }}
-          >
-            <Ace ref={aceRef} height="calc(100vh - 220px)" onBlur={aceBlur}></Ace>
-          </div>
-          <div
-            style={{
-              display:
-                props.drawerType === "look" || !isEdit ? "block" : "none",
-            }}
-          >
-            <TextArea
-              value={mockData}
-              style={{ height: "calc(100vh - 220px)", backgroundColor: "#f2f2f2" }}
-              readOnly
-            />
-          </div>
-        </div>
-      </Col>
-    </Row>
+              <h4>第三方Mock接口地址</h4>
+              <Form.Item
+                name="threeDataUrl"
+                initialValue={""}
+                rules={[
+                  { required: true, message: "请输入第三方Mock接口地址!" },
+                ]}
+              >
+                <Input
+                  autoComplete="off"
+                  placeholder="请输入完整的mock请求地址"
+                />
+              </Form.Item>
+            </>
+          ) : (
+            <>
+              <h4>
+                <span className="mr-10">响应数据</span>
+                {props.drawerType !== "look" ? (
+                  <a
+                    href="#/document?id=1"
+                    target="_blank"
+                    style={{ color: "#6c757d" }}
+                  >
+                    如何生成Mock数据?
+                  </a>
+                ) : null}
+              </h4>
+              <div className="clearfix">
+                <Radio.Group
+                  className="float-left"
+                  defaultValue="1"
+                  size="small"
+                  buttonStyle="solid"
+                  onChange={(e) =>
+                    e.target.value === "1" ? setIsEdit(true) : setIsEdit(false)
+                  }
+                >
+                  <Radio.Button value="1">编辑</Radio.Button>
+                  <Radio.Button value="2">预览</Radio.Button>
+                </Radio.Group>
+                {/* <Popconfirm
+                  title="格式化会清空注释，是否继续?"
+                  onConfirm={() => {
+                    const value = aceRef.current.getValue();
+                    if (!value) return;
+                    aceRef.current.editor.setValue(
+                      JSON5.stringify(JSON5.parse(value), null, 2)
+                    );
+                  }}
+                  okText="确定"
+                  cancelText="算了"
+                >
+                  <Button type="link" size="small">
+                    格式化
+                  </Button>
+                </Popconfirm> */}
+
+                {props.drawerType === "add" ? (
+                  <div className="float-right">
+                    <span className="mr-10">快捷数据模版:</span>
+                    <Select
+                      defaultValue=""
+                      style={{ width: 200 }}
+                      size="small"
+                      onChange={changeBaseData}
+                    >
+                      <Option value="">不使用响应数据模版</Option>
+                      {baseDataList.map((baseData, index) => {
+                        return (
+                          <Option
+                            value={index}
+                            title={baseData.name}
+                            key={index}
+                          >
+                            {baseData.name}
+                          </Option>
+                        );
+                      })}
+                    </Select>
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="pt-10">
+                <div
+                  style={{
+                    display:
+                      props.drawerType !== "look" && isEdit ? "block" : "none",
+                  }}
+                >
+                  <Ace
+                    ref={aceRef}
+                    height="calc(100vh - 220px)"
+                    onBlur={aceBlur}
+                  ></Ace>
+                </div>
+                <div
+                  style={{
+                    display:
+                      props.drawerType === "look" || !isEdit ? "block" : "none",
+                  }}
+                >
+                  <TextArea
+                    value={mockData}
+                    style={{
+                      height: "calc(100vh - 220px)",
+                      backgroundColor: "#f2f2f2",
+                    }}
+                    readOnly
+                  />
+                </div>
+              </div>
+            </>
+          )}
+        </Col>
+      </Row>
+    </Form>
   );
 };
 
