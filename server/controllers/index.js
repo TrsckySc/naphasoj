@@ -94,6 +94,7 @@ router.post(
     let reqBody = req.body;
     reqBody.url = reqBody.prefix + reqBody.path;
     reqBody.isLock = false;
+    reqBody.source = 4;
     reqBody.sourceData = JSON.stringify(req.body.sourceData);
 
     // 保证url唯一性

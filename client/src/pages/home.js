@@ -777,9 +777,11 @@ function PageTable(props) {
       case 1:
         return "自建";
       case 2:
-        return "导入";
+        return "Swagger";
       case 3:
         return "三方";
+      case 4:
+        return "DevTool";
       default:
         return "-";
     }

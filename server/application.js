@@ -30,8 +30,8 @@ app.use((req, res, next) => {
         // 查询到数据并且开启了mock状态，则返回mock数据
         if (JSON.stringify(item) !== "[]" && item[0].isOpen) {
           const itemData = item[0];
-          if (itemData.source === 1) {
-            // 自建接口
+          if (itemData.source === 1 || itemData.source === 4) {
+            // 自建接口 或开发者工具添加的接口
             setTimeout(() => {
               res.send(itemData.data);
             }, data.delay);
