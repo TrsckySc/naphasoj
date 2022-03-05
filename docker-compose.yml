@@ -3,7 +3,7 @@ services:
   # 自定义的服务名
   database:
     # 镜像
-    image: mongo
+    image: mongo:latest
     restart: always
     # 卷
     #volumes:
