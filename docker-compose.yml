@@ -23,7 +23,7 @@ services:
       - 3004:3004
     networks:
       - webapp-network
-    command: ["bash", "-c", "sed -i 's/\r//g' ./wait-for-it.sh && bash ./wait-for-it.sh database:27017 --strict -- npm run start"]
+    command: ["bash", "-c", "sed -i 's/\r//g' ./wait-for-it.sh && chmod +x ./wait-for-it.sh && bash ./wait-for-it.sh database:27017 --strict -- npm run start"]
 networks:
   webapp-network:
     driver: bridge
