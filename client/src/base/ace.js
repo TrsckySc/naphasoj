@@ -4,21 +4,6 @@ import { LoadScript } from "../utils/load-script";
 export class Ace extends React.Component {
   constructor(props) {
     super(props);
-    LoadScript([
-      "./lib/ace-1.4.4/src/ace.js",
-      "./lib/ace-1.4.4/src/theme-chrome.js",
-      "./lib/ace-1.4.4/src/mode-json.js",
-      "./lib/ace-1.4.4/src/snippets/json.js",
-      "./lib/ace-1.4.4/src/ext-language_tools.js",
-    ])
-      .then(() => {
-        this.setState({
-          isLoadAce: true,
-        });
-      })
-      .catch((reason) => {
-        console.error(">>>>>>", reason);
-      });
     this.state = {
       isLoadAce: false,
     };
@@ -132,7 +117,7 @@ export class Ace extends React.Component {
     // 改变事件
     editor.getSession().on("change", function (e, a) {
       clearTimeout(owner.timer);
-      owner.timer = setTimeout(()=>{
+      owner.timer = setTimeout(() => {
         owner.props.onBlur();
       }, 200);
     });
@@ -142,8 +127,23 @@ export class Ace extends React.Component {
     return this.editor.getValue();
   }
 
-  componentDidUpdate() {
-    this.initAce();
+  componentDidMount() {
+    LoadScript([
+      "./lib/ace-1.4.4/src/ace.js",
+      "./lib/ace-1.4.4/src/theme-chrome.js",
+      "./lib/ace-1.4.4/src/mode-json.js",
+      "./lib/ace-1.4.4/src/snippets/json.js",
+      "./lib/ace-1.4.4/src/ext-language_tools.js",
+    ])
+      .then(() => {
+        this.setState({
+          isLoadAce: true,
+        });
+        this.initAce();
+      })
+      .catch((reason) => {
+        console.error(">>>>>>", reason);
+      });
   }
 
   render() {
