@@ -1151,7 +1151,6 @@ let HandleInterface = function (props, ref) {
                 rules={[{ required: true, message: "请选择第三方Mock平台!" }]}
               >
                 <Select>
-                  <Select.Option value="easy-mock">Easy-Mock</Select.Option>
                   <Select.Option value="yapi">Yapi</Select.Option>
                 </Select>
               </Form.Item>
